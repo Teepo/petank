@@ -11,8 +11,8 @@
     "firebase-deploy": "yarn run build && firebase deploy"
   },
   "devDependencies": {
-    "vite": "^4.4.1",
-    "firebase": "^9.23.0",
+    "vite": "^4.4.2",
+    "firebase": "^10.0.0",
     "firebase-tools": "^12.4.3"
   },
   "dependencies": {
