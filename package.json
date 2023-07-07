@@ -1,0 +1,23 @@
+{
+  "name": "petank",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "github-deploy": "yarn run build --env=gh:prod && gh-pages -d dist",
+    "firebase-deploy": "yarn run build && firebase deploy"
+  },
+  "devDependencies": {
+    "vite": "^4.4.1",
+    "firebase": "^9.23.0",
+    "firebase-tools": "^12.4.3"
+  },
+  "dependencies": {
+    "phaser": "^3.60.0",
+    "phaser3-rex-plugins": "^1.60.3",
+    "sass": "^1.63.6"
+  }
+}
