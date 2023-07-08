@@ -39,12 +39,11 @@ export default class HomeScene extends Phaser.Scene {
             .setInteractive()
         ;
 
-        this.playButton.on('pointerdown', () => {
-            this.setPlayButtonActiveState();
+        this.playButton.on('pointerdown', this.setPlayButtonActiveState.bind(this));
+        this.playButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
+        this.playButton.on('pointerup', () => {
             this.scene.start('game');
         });
-        this.playButton.on('pointerup', this.setPlayButtonDisactiveState.bind(this));
-        this.playButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
 
         this.playButtonText =
         this.add.text(this.playButton.x, this.playButton.y, 'PLAY')
