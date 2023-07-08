@@ -145,16 +145,17 @@ const config = {
 	type: Phaser.AUTO,
 	width: window.innerWidth,
 	height: window.innerHeight,
+	antialias: true,
 	scale: {
-        mode: Phaser.Scale.SHOW_ALL,
+        mode: Phaser.Scale.FIT,
+		autoCenter: Phaser.Scale.CENTER_BOTH,
 		zoom: Phaser.Scale.MAX_ZOOM,
 		pageAlignHorizontally: true,
-		pageAlignVertically : true
+		pageAlignVertically : true,
     },
 	physics: {
         default: 'matter',
         matter: {
-            enableSleeping: true,
 			debug: true,
         }
     },
