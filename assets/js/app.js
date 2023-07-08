@@ -45,10 +45,12 @@ class Game extends Phaser.Scene {
 		});
 
 		this.ball.on('drag', (event, x, y) => {
+			this.ball.setVelocity(0);
 			this.drawVelocityIndicator(x, y)
 		});
 
 		this.ball.on('dragend', event => {
+			this.ball.setVelocity(0);
 			this.shootBall(event.upX, event.upY);
 			this.destroyVelocityIndicator();
 		});
