@@ -95,6 +95,7 @@ class Game extends Phaser.Scene {
 	destroyVelocityIndicator() {
 
 		this.targetingModeIsEnabled = false;
+		this.cameraIsEnabled = true;
 
 		this.arrow.destroy();
 		this.currentLineTarget.destroy();
@@ -119,8 +120,6 @@ class Game extends Phaser.Scene {
 		} else if (vx > 0) {
 			vx = -Math.abs(vx);
 		}
-
-		console.log(x, y, vx, -vy)
 
 		this.ball.setVelocity(vx, -vy)
 	}
