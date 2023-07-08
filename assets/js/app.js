@@ -45,7 +45,12 @@ class Game extends Phaser.Scene {
 		});
 
 		this.ball.on('drag', (event, x, y) => {
-			this.drawVelocotyIndicator(x, y)
+			this.drawVelocityIndicator(x, y)
+		});
+
+		this.ball.on('dragend', event => {
+			this.shootBall(event.upX, event.upY);
+			this.destroyVelocityIndicator();
 		});
 	}
 
@@ -66,10 +71,10 @@ class Game extends Phaser.Scene {
 		this.arrow = this.add.tileSprite(this.ball.x, this.ball.y-55, 32, 32, 'arrow');
 
 		// Draw velocity indicator
-		this.drawVelocotyIndicator(this.ball.y);
+		this.drawVelocityIndicator(this.ball.y);
 	}
 
-	drawVelocotyIndicator(x, y) {
+	drawVelocityIndicator(x, y) {
 
 		if (this.currentLineTarget) {
 			this.currentLineTarget.destroy();
@@ -87,10 +92,37 @@ class Game extends Phaser.Scene {
 		this.currentLineTarget.lineBetween(this.ball.x, this.ball.y, x, y);
 	}
 
-	destroyVelocotyIndicator() {
+	destroyVelocityIndicator() {
+
+		this.targetingModeIsEnabled = false;
 
 		this.arrow.destroy();
 		this.currentLineTarget.destroy();
+	}
+
+	scaleValue(x, xMin, xMax, nMin, nMax) {
+		const scaledValue = (x - xMin) / (xMax - xMin);
+		const convertedValue = scaledValue * (nMax - nMin) + nMin;
+		return convertedValue;
+	}
+
+	shootBall(x, y) {
+
+		const min = -10;
+		const max = 10;
+
+		let vx = this.scaleValue(x, 0, window.innerWidth, min, max);
+		const vy = this.scaleValue(y, 0, window.innerHeight, min, max);
+
+		if (vx < 0) {
+			vx = Math.abs(vx);
+		} else if (vx > 0) {
+			vx = -Math.abs(vx);
+		}
+
+		console.log(x, y, vx, -vy)
+
+		this.ball.setVelocity(vx, -vy)
 	}
 
 	initPinchZoom() {
