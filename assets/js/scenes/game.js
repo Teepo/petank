@@ -7,9 +7,13 @@ import backgroundSand from './../../img/background-sand.jpg';
 export default class GameScene extends Phaser.Scene {
 
 	targetingModeIsEnabled = false;
+	ballIsInMovement = false;
 	cameraIsEnabled = true;
 
 	currentLineTarget;
+
+	balls = [];
+	currentBall;
 
     constructor() {
         super('game')
@@ -31,32 +35,61 @@ export default class GameScene extends Phaser.Scene {
 		this.initPinchZoom();
 	}
 
+	update() {
+		this.checkIfAddAnotherBallIsNeeded()
+	}
+
+	checkIfAddAnotherBallIsNeeded() {
+
+		if (!this.currentBall) {
+			return;
+		}
+
+		if (!this.ballIsInMovement) {
+			return;
+		}
+
+		if (this.currentBall.body.speed <= 0.1) {
+
+			this.currentBall.disableInteractive();
+			this.ballIsInMovement = false;
+
+			this.balls.map(ball => {
+				ball.setVelocity(0)
+			});
+
+			this.addBall();
+		}
+	}
+
 	addBall() {
 
-		this.ball = this.matter.add.image(100, 100, 'ball');
+		this.currentBall = this.matter.add.image(100, 100, 'ball');
 
-		this.ball.setCircle();
-		this.ball.setFriction(0.005);
-		this.ball.setBounce(.2);
-		this.ball.setInteractive({ draggable : true });
+		this.currentBall.setCircle();
+		this.currentBall.setFriction(0.005);
+		this.currentBall.setBounce(.2);
+		this.currentBall.setInteractive({ draggable : true });
 
-		this.ball.x = window.innerWidth / 2;
-		this.ball.y = window.innerHeight - 300;
+		this.currentBall.x = window.innerWidth / 2;
+		this.currentBall.y = window.innerHeight - 300;
 
-		this.ball.on('pointerdown', () => {
+		this.currentBall.on('pointerdown', () => {
 			this.addTargeting();
 		});
 
-		this.ball.on('drag', (event, x, y) => {
-			this.ball.setVelocity(0);
+		this.currentBall.on('drag', (event, x, y) => {
+			this.currentBall.setVelocity(0);
 			this.drawVelocityIndicator(x, y)
 		});
 
-		this.ball.on('dragend', event => {
-			this.ball.setVelocity(0);
+		this.currentBall.on('dragend', event => {
+			this.currentBall.setVelocity(0);
 			this.shootBall(event.upX, event.upY);
 			this.destroyVelocityIndicator();
 		});
+
+		this.balls.push(this.currentBall);
 	}
 
 	updateBackground() {
@@ -73,10 +106,10 @@ export default class GameScene extends Phaser.Scene {
 		this.cameraIsEnabled = false;
 
 		// Draw arrow
-		this.arrow = this.add.tileSprite(this.ball.x, this.ball.y-55, 32, 32, 'arrow');
+		this.arrow = this.add.tileSprite(this.currentBall.x, this.currentBall.y-55, 32, 32, 'arrow');
 
 		// Draw velocity indicator
-		this.drawVelocityIndicator(this.ball.y);
+		this.drawVelocityIndicator(this.currentBall.y);
 	}
 
 	drawVelocityIndicator(x, y) {
@@ -89,12 +122,12 @@ export default class GameScene extends Phaser.Scene {
 
 		this.currentLineTarget.clear();
 
-		if (y <= this.ball.y) {
+		if (y <= this.currentBall.y) {
 			return;
 		}
 
 		this.currentLineTarget.lineStyle(5, 0xff0000);
-		this.currentLineTarget.lineBetween(this.ball.x, this.ball.y, x, y);
+		this.currentLineTarget.lineBetween(this.currentBall.x, this.currentBall.y, x, y);
 	}
 
 	destroyVelocityIndicator() {
@@ -126,7 +159,9 @@ export default class GameScene extends Phaser.Scene {
 			vx = -Math.abs(vx);
 		}
 
-		this.ball.setVelocity(vx, -vy)
+		this.currentBall.setVelocity(vx, -vy);
+
+		this.ballIsInMovement = true;
 	}
 
 	initPinchZoom() {
