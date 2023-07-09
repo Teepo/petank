@@ -6,6 +6,8 @@ import backgroundSand from './../../img/background-sand.jpg';
 
 import { showAlert } from './../modules/alert.js'
 
+const BALL_WIDTH = 84;
+
 export default class GameScene extends Phaser.Scene {
 
 	targetingModeIsEnabled = false;
@@ -73,7 +75,9 @@ export default class GameScene extends Phaser.Scene {
 			ball.setVelocity(0);
 		});
 
-		showAlert(this.getDistanceBetweenBallAndCochonnet());
+		const distance = this.getDistanceBetweenBallAndCochonnet();
+
+		showAlert(this.getPixelDistanceToHumanDistance(distance));
 
 		this.addBall();
 
@@ -86,12 +90,32 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	getDistanceBetweenBallAndCochonnet() {
-		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y);
+		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y) - (BALL_WIDTH / 2);
+	}
+
+	getPixelDistanceToHumanDistance(px) {
+
+		const pxByMeter = 250;
+		const pxByCentimeter = 25;
+
+		let value;
+		let metric;
+
+		if (px >= pxByMeter) {
+			value = px / pxByMeter;
+			metric = 'm';
+		}
+		else {
+			value = px / pxByCentimeter;
+			metric = 'cm';
+		}
+
+		return `${value.toFixed(2)}${metric}`;
 	}
 
 	addBall() {
 
-		this.currentBall = this.matter.add.image(84, 84, 'ball');
+		this.currentBall = this.matter.add.image(BALL_WIDTH, BALL_WIDTH, 'ball');
 
 		this.currentBall.setCircle();
 		this.currentBall.setFriction(0.005);
