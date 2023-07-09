@@ -31,9 +31,8 @@ export default class NewPlayer extends Phaser.Scene {
 
     createForm() {
 
-        const template = document.querySelector('#template-form-new-player');
-        const clone = template.content.cloneNode(true);
-        document.body.appendChild(clone);
+        const form = document.querySelector('#template-form-new-player').content.cloneNode(true);
+        document.body.appendChild(form);
 
         const { width, height } = this.scale;
 
@@ -46,6 +45,12 @@ export default class NewPlayer extends Phaser.Scene {
         this.addNewPlayerButton.on('pointerdown', this.setPlayButtonActiveState.bind(this));
         this.addNewPlayerButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
         this.addNewPlayerButton.on('pointerup', () => {
+
+            const form = document.querySelector('.form-new-player');
+            if (form) {
+                form.remove();
+            }
+
             this.scene.start('game');
         });
 

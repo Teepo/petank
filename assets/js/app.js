@@ -34,7 +34,7 @@ const config = {
 			mapping: 'rexGestures'
 		}]
 	},
-	scene: [HomeScene, GameScene]
+	scene: [HomeScene, NewPlayer, GameScene]
 };
 
 new Phaser.Game(config);

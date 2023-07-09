@@ -42,7 +42,7 @@ export default class HomeScene extends Phaser.Scene {
         this.playButton.on('pointerdown', this.setPlayButtonActiveState.bind(this));
         this.playButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
         this.playButton.on('pointerup', () => {
-            this.scene.start('game');
+            this.scene.start('newPlayer');
         });
 
         this.playButtonText =
