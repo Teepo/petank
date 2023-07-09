@@ -4,6 +4,8 @@ import ball from './../../img/ball.png';
 import arrow from './../../img/arrow.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
+import { showAlert } from './../modules/alert.js'
+
 export default class GameScene extends Phaser.Scene {
 
 	targetingModeIsEnabled = false;
@@ -39,7 +41,6 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	update() {
-
 		this.checkIfAddAnotherBallIsNeeded();
 	}
 
@@ -72,7 +73,7 @@ export default class GameScene extends Phaser.Scene {
 			ball.setVelocity(0);
 		});
 
-		console.log("distance : " + this.getDistanceBetweenBallAndCochonnet());
+		showAlert(this.getDistanceBetweenBallAndCochonnet());
 
 		this.addBall();
 
