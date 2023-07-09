@@ -1,1 +1,25 @@
-@import './reset.scss'
+@import './reset.scss';
+
+$primary-color: #1da1f2;
+
+.form-new-player {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    input {
+        border: 3px solid #1da1f2;
+        padding: 10px;
+        border-radius: 5px;
+        text-transform: uppercase;
+        font-size: 1rem;
+        width: 60vw;
+    }
+}

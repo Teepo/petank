@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
+
 import GesturesPlugin from 'phaser3-rex-plugins/plugins/gestures-plugin.js';
 
 import HomeScene from './scenes/home.js';
+import NewPlayer from './scenes/newPlayer.js';
 import GameScene from './scenes/game.js';
 
 const config = {
@@ -21,6 +23,9 @@ const config = {
         matter: {
 			debug: true,
         }
+    },
+	dom: {
+        createContainer: true
     },
 	plugins: {
 		scene: [{

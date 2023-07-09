@@ -32,6 +32,7 @@ export default class GameScene extends Phaser.Scene {
 
 		this.updateBackground();
 		this.addBall();
+		this.addCochonnet();
 		this.initPinchZoom();
 	}
 
@@ -64,11 +65,13 @@ export default class GameScene extends Phaser.Scene {
 
 	addBall() {
 
-		this.currentBall = this.matter.add.image(100, 100, 'ball');
+		this.currentBall = this.matter.add.image(84, 84, 'ball');
 
 		this.currentBall.setCircle();
 		this.currentBall.setFriction(0.005);
 		this.currentBall.setBounce(.2);
+		this.currentBall.setVelocity(0);
+		this.currentBall.setFrictionAir(.015);
 		this.currentBall.setInteractive({ draggable : true });
 
 		this.currentBall.x = window.innerWidth / 2;
@@ -90,6 +93,19 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		this.balls.push(this.currentBall);
+	}
+
+	addCochonnet() {
+
+		const circle = this.add.circle(window.innerWidth / 2, 200, 10, 0xff0000);
+		const body = this.matter.add.circle(window.innerWidth / 2, 200, 10)
+
+		this.cochonnet = this.matter.add.gameObject(circle, body)
+
+		this.cochonnet.setFriction(0.005);
+		this.cochonnet.setBounce(.2);
+		this.cochonnet.setFriction(.015);
+		this.cochonnet.setInteractive({ draggable : true });
 	}
 
 	updateBackground() {
@@ -151,7 +167,7 @@ export default class GameScene extends Phaser.Scene {
 		const max = 10;
 
 		let vx = this.scaleValue(x, 0, window.innerWidth, min, max);
-		const vy = this.scaleValue(y, 0, window.innerHeight, min, max);
+		let vy = this.scaleValue(y, 0, window.innerHeight, min, max);
 
 		if (vx < 0) {
 			vx = Math.abs(vx);
@@ -159,7 +175,11 @@ export default class GameScene extends Phaser.Scene {
 			vx = -Math.abs(vx);
 		}
 
-		this.currentBall.setVelocity(vx, -vy);
+		vy = -vy
+
+		// @TODO make same linear scalke for angular velocity
+		this.currentBall.setAngularVelocity(vx < 0 ? -.05 : .05);
+		this.currentBall.setVelocity(vx, vy);
 
 		this.ballIsInMovement = true;
 	}
