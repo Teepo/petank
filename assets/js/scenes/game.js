@@ -27,17 +27,25 @@ export default class GameScene extends Phaser.Scene {
 
 	create() {
 
-		this.matter.world.setBounds(0, 0, window.innerWidth, window.innerHeight, 32, true, true, false, true);
-		this.matter.world.disableGravity()
+		this.matter.world.setBounds(0, 0, this.game.config.width, this.game.config.height * 2);
+		this.matter.world.disableGravity();
+		this.getCamera().setBounds(0, 0, this.game.config.width, this.game.config.height * 2);
 
 		this.updateBackground();
 		this.addBall();
 		this.addCochonnet();
 		this.initPinchZoom();
+		this.resetCameraToCurrentBall();
 	}
 
 	update() {
-		this.checkIfAddAnotherBallIsNeeded()
+
+		this.checkIfAddAnotherBallIsNeeded();
+	}
+
+	updateBackground() {
+		this.backgroundSand = this.add.tileSprite(this.game.config.width / 2, this.game.config.height / 2, this.game.config.width, this.game.config.height * 10, 'background-sand');
+		this.backgroundSand.setDepth(-1);
 	}
 
 	checkIfAddAnotherBallIsNeeded() {
@@ -51,16 +59,33 @@ export default class GameScene extends Phaser.Scene {
 		}
 
 		if (this.currentBall.body.speed <= 0.1) {
-
-			this.currentBall.disableInteractive();
-			this.ballIsInMovement = false;
-
-			this.balls.map(ball => {
-				ball.setVelocity(0)
-			});
-
-			this.addBall();
+			this.theEndOfBallShoot();
 		}
+	}
+
+	theEndOfBallShoot() {
+
+		this.currentBall.disableInteractive();
+		this.ballIsInMovement = false;
+
+		this.balls.map(ball => {
+			ball.setVelocity(0);
+		});
+
+		console.log("distance : " + this.getDistanceBetweenBallAndCochonnet());
+
+		this.addBall();
+
+		this.resetCameraToCurrentBall();
+	}
+
+	resetCameraToCurrentBall() {
+		this.getCamera().startFollow(this.currentBall);
+		this.getCamera().stopFollow();
+	}
+
+	getDistanceBetweenBallAndCochonnet() {
+		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y);
 	}
 
 	addBall() {
@@ -74,8 +99,8 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.setFrictionAir(.015);
 		this.currentBall.setInteractive({ draggable : true });
 
-		this.currentBall.x = window.innerWidth / 2;
-		this.currentBall.y = window.innerHeight - 300;
+		this.currentBall.x = this.game.config.width / 2;
+		this.currentBall.y = this.game.config.height * 2 - 300;
 
 		this.currentBall.on('pointerdown', () => {
 			this.addTargeting();
@@ -83,11 +108,13 @@ export default class GameScene extends Phaser.Scene {
 
 		this.currentBall.on('drag', (event, x, y) => {
 			this.currentBall.setVelocity(0);
+			this.cochonnet.setVelocity(0);
 			this.drawVelocityIndicator(x, y)
 		});
 
 		this.currentBall.on('dragend', event => {
 			this.currentBall.setVelocity(0);
+			this.cochonnet.setVelocity(0);
 			this.shootBall(event.upX, event.upY);
 			this.destroyVelocityIndicator();
 		});
@@ -106,10 +133,6 @@ export default class GameScene extends Phaser.Scene {
 		this.cochonnet.setBounce(.2);
 		this.cochonnet.setFriction(.015);
 		this.cochonnet.setInteractive({ draggable : true });
-	}
-
-	updateBackground() {
-		this.backgroundSand = this.add.tileSprite(window.innerWidth / 2, window.innerHeight / 2, window.innerWidth, window.innerHeight, 'background-sand');
 	}
 
 	addTargeting() {
@@ -175,7 +198,14 @@ export default class GameScene extends Phaser.Scene {
 			vx = -Math.abs(vx);
 		}
 
-		vy = -vy
+		vy = -vy;
+
+		const VELOCITY_MULTIPLICATOR = 2;
+
+		vx *= VELOCITY_MULTIPLICATOR;
+		vy *= VELOCITY_MULTIPLICATOR;
+
+		this.getCamera().startFollow(this.currentBall);
 
 		// @TODO make same linear scalke for angular velocity
 		this.currentBall.setAngularVelocity(vx < 0 ? -.05 : .05);
@@ -197,5 +227,9 @@ export default class GameScene extends Phaser.Scene {
 
 			camera.scrollY -= pinch.drag1Vector.y / camera.zoom;
 		});
+	}
+
+	getCamera() {
+		return this.cameras.main;
 	}
 }

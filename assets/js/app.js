@@ -15,8 +15,6 @@ const config = {
         mode: Phaser.Scale.FIT,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
 		zoom: Phaser.Scale.MAX_ZOOM,
-		pageAlignHorizontally: true,
-		pageAlignVertically : true,
     },
 	physics: {
         default: 'matter',
