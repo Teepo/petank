@@ -21,7 +21,7 @@ const open = () => {
     });
 
     openTimeoutHandler = setTimeout(() => {
-        // close();
+        close();
     }, 5000);
 };
 
