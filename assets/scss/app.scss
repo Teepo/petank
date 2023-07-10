@@ -3,8 +3,10 @@
 $primary-color: #1da1f2;
 
 @import './mixins.scss';
-@import './modules/icon.scss';
+
 @import './modules/alert.scss';
+@import './modules/button.scss';
+@import './modules/icon.scss';
 
 body {
     font-family: Arial;

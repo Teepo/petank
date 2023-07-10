@@ -36,6 +36,7 @@ export default class GameScene extends Phaser.Scene {
 		this.getCamera().setBounds(0, 0, this.game.config.width, this.game.config.height * 2);
 
 		this.updateBackground();
+		this.drawButtonCenterCameraToCurrentBall();
 		this.addBall();
 		this.addCochonnet();
 		this.initPinchZoom();
@@ -49,6 +50,16 @@ export default class GameScene extends Phaser.Scene {
 	updateBackground() {
 		this.backgroundSand = this.add.tileSprite(this.game.config.width / 2, this.game.config.height / 2, this.game.config.width, this.game.config.height * 10, 'background-sand');
 		this.backgroundSand.setDepth(-1);
+	}
+
+	drawButtonCenterCameraToCurrentBall() {
+
+		const button = document.querySelector('#template-button-center-camera-to-current-ball').content.cloneNode(true);
+        document.body.appendChild(button);
+
+		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
+			this.resetCameraToCurrentBall();
+		});
 	}
 
 	checkIfAddAnotherBallIsNeeded() {
