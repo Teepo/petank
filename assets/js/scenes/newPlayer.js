@@ -6,10 +6,33 @@ import backgroundSand from './../../img/background-sand.jpg';
 import button from './../../img/ui-pack/blue_button13.png';
 import buttonActive from './../../img/ui-pack/blue_button04.png';
 
+import { WS_HOST, WS_PORT, ROOM_NAME } from './../config/index.js';
+
 export default class NewPlayer extends Phaser.Scene {
 
     constructor() {
-        super('newPlayer')
+
+        super('newPlayer');
+
+        this.socket = new WebSocket(`ws://${WS_HOST}:${WS_PORT}`);
+        window.ws = this.socket
+
+        // Gérer les événements de la connexion WebSocket
+        this.socket.addEventListener('open', () => {
+
+            this.socket.send(JSON.stringify({ type: 'createRoom', data : {
+                roomName : ROOM_NAME
+            }}));
+        });
+
+        this.socket.addEventListener('message', event => {
+        });
+
+        this.socket.addEventListener('close', () => {
+            this.socket.send(JSON.stringify({ type: 'createRoom', data : {
+                roomName : ROOM_NAME
+            }}));
+        });
     }
 
 	preload() {
@@ -47,9 +70,18 @@ export default class NewPlayer extends Phaser.Scene {
         this.addNewPlayerButton.on('pointerup', () => {
 
             const form = document.querySelector('.form-new-player');
-            if (form) {
-                form.remove();
+
+            if (!form) {
+                return;
             }
+
+            const login = form.querySelector('input').value
+
+            this.socket.send(JSON.stringify({ type: 'joinRoom', data : {
+                roomName : ROOM_NAME
+            }}));
+
+            form.remove();
 
             this.scene.start('game');
         });
