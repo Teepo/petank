@@ -14,7 +14,7 @@ export default class NewPlayer extends Phaser.Scene {
 
         super('newPlayer');
 
-        this.socket = new WebSocket(`ws://${WS_HOST}:${WS_PORT}`);
+        this.socket = new WebSocket(`wss://${WS_HOST}:${WS_PORT}`);
         window.ws = this.socket
 
         // Gérer les événements de la connexion WebSocket
