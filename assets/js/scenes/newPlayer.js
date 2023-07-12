@@ -43,9 +43,9 @@ export default class NewPlayer extends Phaser.Scene {
 
             const form = document.querySelector('.form-new-player');
 
-            const { id } = data;
+            const { player } = data;
 
-            sessionStorage.setItem('id', id);
+            sessionStorage.setItem('id', player.id);
 
             this.scene.start('waitingRoom');
 
