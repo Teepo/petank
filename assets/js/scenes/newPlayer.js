@@ -6,33 +6,14 @@ import backgroundSand from './../../img/background-sand.jpg';
 import button from './../../img/ui-pack/blue_button13.png';
 import buttonActive from './../../img/ui-pack/blue_button04.png';
 
-import { WS_HOST, WS_PORT, ROOM_NAME } from './../config/index.js';
+import { socket } from './../modules/ws.js';
+import { wsErrorHandler } from '../modules/wsErrorHandler.js';
 
 export default class NewPlayer extends Phaser.Scene {
 
     constructor() {
 
         super('newPlayer');
-
-        this.socket = new WebSocket(`wss://${WS_HOST}:${WS_PORT}`);
-        window.ws = this.socket
-
-        // Gérer les événements de la connexion WebSocket
-        this.socket.addEventListener('open', () => {
-
-            this.socket.send(JSON.stringify({ type: 'createRoom', data : {
-                roomName : ROOM_NAME
-            }}));
-        });
-
-        this.socket.addEventListener('message', event => {
-        });
-
-        this.socket.addEventListener('close', () => {
-            this.socket.send(JSON.stringify({ type: 'createRoom', data : {
-                roomName : ROOM_NAME
-            }}));
-        });
     }
 
 	preload() {
@@ -50,6 +31,26 @@ export default class NewPlayer extends Phaser.Scene {
         this.logo.setScale(.35);
 
         this.createForm();
+
+        socket.on('joinedRoom', data => {
+
+            const error = wsErrorHandler(data);
+
+            if (error) {
+                this.addNewPlayerButton.once('pointerup', this.clickOnJoinButtonHandler.bind(this));
+                return;
+            }
+
+            const form = document.querySelector('.form-new-player');
+
+            const { id } = data;
+
+            sessionStorage.setItem('id', id);
+
+            this.scene.start('waitingRoom');
+
+            form.remove();
+        });
 	}
 
     createForm() {
@@ -67,24 +68,7 @@ export default class NewPlayer extends Phaser.Scene {
 
         this.addNewPlayerButton.on('pointerdown', this.setPlayButtonActiveState.bind(this));
         this.addNewPlayerButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
-        this.addNewPlayerButton.on('pointerup', () => {
-
-            const form = document.querySelector('.form-new-player');
-
-            if (!form) {
-                return;
-            }
-
-            const login = form.querySelector('input').value
-
-            this.socket.send(JSON.stringify({ type: 'joinRoom', data : {
-                roomName : ROOM_NAME
-            }}));
-
-            form.remove();
-
-            this.scene.start('game');
-        });
+        this.addNewPlayerButton.once('pointerup', this.clickOnJoinButtonHandler.bind(this));
 
         this.addNewPlayerButtonText =
         this.add.text(this.addNewPlayerButton.x, this.addNewPlayerButton.y, 'JOIN')
@@ -93,6 +77,18 @@ export default class NewPlayer extends Phaser.Scene {
             .setFontFamily('Helvetica')
             .setTint(0x1da1f2)
         ;
+    }
+
+    clickOnJoinButtonHandler() {
+
+        const form = document.querySelector('.form-new-player');
+
+        const login = form.querySelector('input').value;
+
+        socket.emit('joinRoom', {
+            roomName : 'petank',
+            login    : login
+        });
     }
 
     setPlayButtonActiveState() {

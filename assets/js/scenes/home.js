@@ -33,35 +33,78 @@ export default class HomeScene extends Phaser.Scene {
 
         const { width, height } = this.scale;
 
-        this.playButton =
-        this.add.image(width * 0.5, height * 0.6, 'button')
+        this.onePlayerButton =
+        this.add.image(width * .5, height * .5, 'button')
             .setDisplaySize(150, 50)
             .setInteractive()
         ;
 
-        this.playButton.on('pointerdown', this.setPlayButtonActiveState.bind(this));
-        this.playButton.on('pointerout', this.setPlayButtonDisactiveState.bind(this));
-        this.playButton.on('pointerup', () => {
-            this.scene.start('newPlayer');
-        });
-
-        this.playButtonText =
-        this.add.text(this.playButton.x, this.playButton.y, 'PLAY')
-            .setOrigin(0.5, 0.60)
-            .setFontSize(22)
+        this.onePlayerButtonText =
+        this.add.text(this.onePlayerButton.x, this.onePlayerButton.y, 'ONE PLAYER')
+            .setOrigin(.5, .60)
+            .setFontSize(18)
             .setFontFamily('Helvetica')
             .setTint(0x1da1f2)
         ;
+
+        this.onePlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
+        this.onePlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
+        this.onePlayerButton.on('pointerup', () => {
+        });
+
+        // ----------------------------
+
+        this.multiPlayerButton =
+        this.add.image(width * .5, height * .6, 'button')
+            .setDisplaySize(150, 50)
+            .setInteractive()
+        ;
+
+        this.multiPlayerButtonText =
+        this.add.text(this.multiPlayerButton.x, this.multiPlayerButton.y, 'MULTIPLAYER')
+            .setOrigin(.5, .60)
+            .setFontSize(18)
+            .setFontFamily('Helvetica')
+            .setTint(0x1da1f2)
+        ;
+
+        this.multiPlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
+        this.multiPlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
+        this.multiPlayerButton.on('pointerup', () => {
+            this.scene.start('newPlayer');
+        });
+
+        // ----------------------------
+
+        this.trainingButton =
+        this.add.image(width * .5, height * .7, 'button')
+            .setDisplaySize(150, 50)
+            .setInteractive()
+        ;
+
+        this.trainingButtonText =
+        this.add.text(this.trainingButton.x, this.trainingButton.y, 'TRAINING')
+            .setOrigin(.5, .60)
+            .setFontSize(18)
+            .setFontFamily('Helvetica')
+            .setTint(0x1da1f2)
+        ;
+
+        this.trainingButton.on('pointerdown', this.setButtonActiveState.bind(this, this.trainingButton, this.trainingButtonText));
+        this.trainingButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.trainingButton, this.trainingButtonText));
+        this.trainingButton.on('pointerup', () => {
+            this.scene.start('game');
+        });
     }
 
-    setPlayButtonActiveState() {
-        this.playButton.setTexture('buttonActive');
-        this.playButtonText.setTint(0xffffff);
+    setButtonActiveState(button, buttonText) {
+        button.setTexture('buttonActive');
+        buttonText.setTint(0xffffff);
     }
 
-    setPlayButtonDisactiveState() {
-        this.playButton.setTexture('button');
-        this.playButtonText.setTint(0x1da1f2);
+    setButtonDisactiveState(button, buttonText) {
+        button.setTexture('button');
+        buttonText.setTint(0x1da1f2);
     }
 
     update() {
