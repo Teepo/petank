@@ -70,7 +70,7 @@ export default class HomeScene extends Phaser.Scene {
 
         this.multiPlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
         this.multiPlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
-        this.multiPlayerButton.on('pointerup', () => {
+        this.multiPlayerButton.once('pointerup', () => {
             this.scene.start('newPlayer');
         });
 
