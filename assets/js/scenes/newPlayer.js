@@ -26,6 +26,7 @@ export default class NewPlayer extends Phaser.Scene {
 	create() {
 
         if (!!sessionStorage.getItem('id')) {
+            this.scene.stop('newPlayer');
             this.scene.start('waitingRoom');
             return;
         }
