@@ -25,6 +25,11 @@ export default class NewPlayer extends Phaser.Scene {
 
 	create() {
 
+        if (!!sessionStorage.getItem('id')) {
+            this.scene.start('waitingRoom');
+            return;
+        }
+
 		this.updateBackground();
 
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
@@ -46,6 +51,7 @@ export default class NewPlayer extends Phaser.Scene {
             const { player } = data;
 
             sessionStorage.setItem('id', player.id);
+            sessionStorage.setItem('room', 'petank');
 
             this.scene.start('waitingRoom');
 
