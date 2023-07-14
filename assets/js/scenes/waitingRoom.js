@@ -61,7 +61,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
             createApp(PlayerList)
             .use(vuetify)
-            .mount('#player-list');
+            .mount('.player-list');
 		});
 	}
 

@@ -40,6 +40,8 @@ export default {
     
     async mounted() {
 
+        document.querySelector('.player-list').classList.add('player-list--is-visible');
+
         this.id   = sessionStorage.getItem('id');
         this.room = sessionStorage.getItem('room');
         
@@ -68,17 +70,21 @@ export default {
 </script>
 
 <style lang="scss">
-    #player-list {
+    .player-list {
+        display: none;
         position: absolute;
         top: 0;
         bottom: 0;
         left: 0;
         right: 0;
-        display: flex;
         flex-wrap: wrap;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        &--is-visible {
+            display: flex;
+        }
     }
 
     .v-card {
