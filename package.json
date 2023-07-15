@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "github-deploy": "yarn run build --env=gh:prod && gh-pages -d dist",
-    "firebase-deploy": "firebase deploy"
+    "firebase-deploy": "yarn run build && firebase deploy"
   },
   "devDependencies": {
     "firebase": "^10.0.0",

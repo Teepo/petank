@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 
 import ball from './../../img/ball.png';
 import arrow from './../../img/arrow.png';
+import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
 import { showAlert } from './../modules/alert.js'
@@ -54,8 +55,10 @@ export default class GameScene extends Phaser.Scene {
 
 	drawButtonCenterCameraToCurrentBall() {
 
-		const button = document.querySelector('#template-button-center-camera-to-current-ball').content.cloneNode(true);
-        document.body.appendChild(button);
+		document.body.insertAdjacentHTML('beforeEnd', `
+			<button class="button button-center-camera-to-current-ball">
+				<img src="${center}" class="u-icon">
+			</button>`)
 
 		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
 			this.resetCameraToCurrentBall();
