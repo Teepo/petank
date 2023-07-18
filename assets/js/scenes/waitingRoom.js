@@ -38,6 +38,7 @@ export default class WaitingRoom extends Phaser.Scene {
         this.room = sessionStorage.getItem('room');
 
         if (!this.id || !this.room) {
+            socket.removeAllListeners();
             return this.scene.start('newPlayer');
         }
 
@@ -48,10 +49,14 @@ export default class WaitingRoom extends Phaser.Scene {
 
         socket.on('getPlayer', data => {
 
+            console.log('getPlayer', data)
+
             const error = wsErrorHandler(data);
 
             if (error) {
                 sessionStorage.clear();
+                socket.removeAllListeners();
+                this.scene.stop('waitingRoom');
                 this.scene.start('newPlayer');
                 return;
             }
@@ -59,7 +64,9 @@ export default class WaitingRoom extends Phaser.Scene {
             const { player } = data;
 			this.player = player;
 
-            createApp(PlayerList)
+            createApp(PlayerList, {
+                player : this.player
+            })
             .use(vuetify)
             .mount('.player-list');
 		});

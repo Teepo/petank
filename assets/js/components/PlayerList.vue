@@ -33,7 +33,7 @@ export default {
 	data() {
 
 		return {
-            player  : null,
+            player  : this.$attrs.player,
 			players : []
 		}
 	},
@@ -53,6 +53,13 @@ export default {
         socket.on('joinedRoom', data => {
 			this.handleJoinedRoom(data);
         });
+
+        socket.on('setPlayerIsReady', data => {
+
+            const { player } = data;
+
+            this.players.find(p => p.id == player.id).isReady = player.isReady;
+        });
     },
     methods : {
 
@@ -65,6 +72,15 @@ export default {
 			const { player } = data;
 			this.players.push(player);
         },
+
+        setPlayerReadyHandler() {
+
+            socket.emit('setPlayerIsReady', {
+                player : this.player
+            });
+
+            this.player.isReady = !this.player.isReady;
+        }
     }
 }
 </script>

@@ -26,6 +26,7 @@ export default class NewPlayer extends Phaser.Scene {
 	create() {
 
         if (!!sessionStorage.getItem('id')) {
+            socket.removeAllListeners();
             this.scene.stop('newPlayer');
             this.scene.start('waitingRoom');
             return;
@@ -54,6 +55,7 @@ export default class NewPlayer extends Phaser.Scene {
             sessionStorage.setItem('id', player.id);
             sessionStorage.setItem('room', 'petank');
 
+            socket.removeAllListeners();
             this.scene.start('waitingRoom');
 
             form.remove();
