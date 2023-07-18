@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import { socket } from './../modules/ws.js';
+
 import logo from './../../img/logo.png';
 
 import backgroundSand from './../../img/background-sand.jpg';
@@ -21,6 +23,8 @@ export default class HomeScene extends Phaser.Scene {
 
 	create() {
 
+        this.restoreSessionIfNeeded();
+
 		this.updateBackground();
 
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
@@ -28,6 +32,38 @@ export default class HomeScene extends Phaser.Scene {
 
         this.createButtons();
 	}
+
+    restoreSessionIfNeeded() {
+
+        const id   = sessionStorage.getItem('id');
+        const room = sessionStorage.getItem('room');
+
+        if (!id || !room) {
+            return;
+        }
+
+        socket.emit('getPlayer', {
+            id       : id,
+            roomName : room
+        });
+
+        socket.on('getPlayer', data => {
+
+            const { player, error } = data;
+
+            if (error) {
+                return;
+            }
+
+            if (!player.id) {
+                return;
+            }
+
+            socket.removeAllListeners();
+            this.scene.stop('home');
+            this.scene.start('waitingRoom');
+		});
+    }
 
     createButtons() {
 
