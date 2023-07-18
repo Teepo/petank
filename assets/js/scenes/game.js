@@ -20,8 +20,14 @@ export default class GameScene extends Phaser.Scene {
 	balls = [];
 	currentBall;
 
-    constructor() {
-        super('game')
+	turnCount = 0;
+	players = [];
+
+    constructor(sceneName, players = []) {
+
+		super(sceneName);
+
+		this.players = players;
     }
 
 	preload() {
@@ -53,6 +59,10 @@ export default class GameScene extends Phaser.Scene {
 		this.backgroundSand.setDepth(-1);
 	}
 
+	nextTurn() {
+		this.turnCount++;
+	}
+
 	drawButtonCenterCameraToCurrentBall() {
 
 		document.body.insertAdjacentHTML('beforeEnd', `
@@ -82,6 +92,8 @@ export default class GameScene extends Phaser.Scene {
 
 	theEndOfBallShoot() {
 
+		this.nextTurn();
+
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
 
@@ -96,6 +108,20 @@ export default class GameScene extends Phaser.Scene {
 		this.addBall();
 
 		this.resetCameraToCurrentBall();
+
+		const player = this.getPlayerForThisTurn();
+
+		if (player.isComputer()) {
+
+			setTimeout(() => {
+				this.shootBall(200, 700);
+			}, 2000);
+		}
+	}
+
+	getPlayerForThisTurn() {
+		const index = this.turnCount % this.players.length;
+		return this.players[index];
 	}
 
 	resetCameraToCurrentBall() {
@@ -129,6 +155,8 @@ export default class GameScene extends Phaser.Scene {
 
 	addBall() {
 
+		const player = this.getPlayerForThisTurn();
+
 		this.currentBall = this.matter.add.image(BALL_WIDTH, BALL_WIDTH, 'ball');
 
 		this.currentBall.setCircle();
@@ -136,27 +164,31 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.setBounce(.2);
 		this.currentBall.setVelocity(0);
 		this.currentBall.setFrictionAir(.015);
-		this.currentBall.setInteractive({ draggable : true });
 
 		this.currentBall.x = this.game.config.width / 2;
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
-		this.currentBall.on('pointerdown', () => {
-			this.addTargeting();
-		});
+		if (player.isHuman()) {
 
-		this.currentBall.on('drag', (event, x, y) => {
-			this.currentBall.setVelocity(0);
-			this.cochonnet.setVelocity(0);
-			this.drawVelocityIndicator(x, y)
-		});
+			this.currentBall.setInteractive({ draggable : true })
 
-		this.currentBall.on('dragend', event => {
-			this.currentBall.setVelocity(0);
-			this.cochonnet.setVelocity(0);
-			this.shootBall(event.upX, event.upY);
-			this.destroyVelocityIndicator();
-		});
+			this.currentBall.on('pointerdown', () => {
+				this.addTargeting();
+			});
+
+			this.currentBall.on('drag', (event, x, y) => {
+				this.currentBall.setVelocity(0);
+				this.cochonnet.setVelocity(0);
+				this.drawVelocityIndicator(x, y)
+			});
+
+			this.currentBall.on('dragend', event => {
+				this.currentBall.setVelocity(0);
+				this.cochonnet.setVelocity(0);
+				this.shootBall(event.upX, event.upY);
+				this.destroyVelocityIndicator();
+			});
+		}
 
 		this.balls.push(this.currentBall);
 	}

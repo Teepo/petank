@@ -86,6 +86,8 @@ export default class HomeScene extends Phaser.Scene {
         this.onePlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
         this.onePlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
         this.onePlayerButton.on('pointerup', () => {
+            this.scene.stop('home');
+            this.scene.start('onePlayer');
         });
 
         // ----------------------------
@@ -107,6 +109,7 @@ export default class HomeScene extends Phaser.Scene {
         this.multiPlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
         this.multiPlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.multiPlayerButton, this.multiPlayerButtonText));
         this.multiPlayerButton.once('pointerup', () => {
+            this.scene.stop('home');
             this.scene.start('newPlayer');
         });
 
@@ -129,7 +132,8 @@ export default class HomeScene extends Phaser.Scene {
         this.trainingButton.on('pointerdown', this.setButtonActiveState.bind(this, this.trainingButton, this.trainingButtonText));
         this.trainingButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.trainingButton, this.trainingButtonText));
         this.trainingButton.on('pointerup', () => {
-            this.scene.start('game');
+            this.scene.stop('home');
+            this.scene.start('training');
         });
     }
 

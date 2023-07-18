@@ -5,7 +5,8 @@ import GesturesPlugin from 'phaser3-rex-plugins/plugins/gestures-plugin.js';
 import HomeScene from './scenes/home.js';
 import NewPlayer from './scenes/newPlayer.js';
 import WaitingRoom from './scenes/waitingRoom.js';
-import GameScene from './scenes/game.js';
+import OnePlayerScene from './scenes/onePlayer.js';
+import TrainingScene from './scenes/training.js';
 
 const config = {
 	type: Phaser.AUTO,
@@ -33,7 +34,7 @@ const config = {
 			mapping: 'rexGestures'
 		}]
 	},
-	scene: [HomeScene, NewPlayer, WaitingRoom, GameScene]
+	scene: [HomeScene, NewPlayer, WaitingRoom, OnePlayerScene, TrainingScene]
 };
 
 new Phaser.Game(config);
