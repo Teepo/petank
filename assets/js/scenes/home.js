@@ -116,7 +116,15 @@ export default class HomeScene extends Phaser.Scene {
         this.trainingButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.trainingButton, this.trainingButtonText));
         this.trainingButton.on('pointerup', () => {
             this.scene.stop('home');
-            this.scene.start('training');
+            this.scene.start('waitingRoom', {
+                mode : WAITING_ONEPLAYER_MODE,
+                players : [new Player({
+                    type  : HUMAN_TYPE,
+                    login : 'Player',
+                    ball  : 'earth.svg',
+                    remainingBallCount : Infinity
+                })]
+            });
         });
     }
 
