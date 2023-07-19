@@ -7,8 +7,6 @@ import {
 	GAME_BALL_WIDTH
 } from '../config';
 
-import ball from './../../img/balls/volleyball.svg';
-
 import arrow from './../../img/arrow.png';
 import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
@@ -38,9 +36,11 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.image('ball', ball);
+
 		this.load.image('arrow', arrow);
 		this.load.image('background-sand', backgroundSand);
+
+		this.loadPlayersBall();
 	}
 
 	create() {
@@ -68,6 +68,13 @@ export default class GameScene extends Phaser.Scene {
 
 	nextTurn() {
 		this.turnCount++;
+	}
+
+	loadPlayersBall() {
+
+		this.players.map(async player => {
+			this.load.image(player.ball, (await import(`./../../img/balls/${player.ball}`)).default);
+		});
 	}
 
 	drawButtonCenterCameraToCurrentBall() {
@@ -164,7 +171,7 @@ export default class GameScene extends Phaser.Scene {
 
 		const player = this.getPlayerForThisTurn();
 
-		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, 'ball');
+		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, player.ball);
 
 		this.currentBall.setCircle();
 		this.currentBall.setFriction(GAME_BALL_FRICTION);
