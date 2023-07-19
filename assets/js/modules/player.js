@@ -9,6 +9,7 @@ export class Player {
         this.login   = login;
         this.isReady = true;
         this.type    = type;
+        this.ball    = 'peach';
     }
 
     isHuman() {

@@ -8,8 +8,6 @@ import {
     Player
 } from '../modules/player.js';
 
-import { socket } from './../modules/ws.js';
-
 import logo from './../../img/logo.png';
 
 import backgroundSand from './../../img/background-sand.jpg';

@@ -7,7 +7,8 @@ import {
 	GAME_BALL_WIDTH
 } from '../config';
 
-import ball from './../../img/ball.png';
+import ball from './../../img/balls/volleyball.svg';
+
 import arrow from './../../img/arrow.png';
 import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
@@ -222,7 +223,7 @@ export default class GameScene extends Phaser.Scene {
 		this.cameraIsEnabled = false;
 
 		// Draw arrow
-		this.arrow = this.add.tileSprite(this.currentBall.x, this.currentBall.y-55, 32, 32, 'arrow');
+		this.arrow = this.add.tileSprite(this.currentBall.x, this.currentBall.y-32, GAME_BALL_WIDTH, GAME_BALL_WIDTH, 'arrow');
 
 		// Draw velocity indicator
 		this.drawVelocityIndicator(this.currentBall.y);

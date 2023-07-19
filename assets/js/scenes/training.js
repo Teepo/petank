@@ -1,12 +1,18 @@
 import Game from './game.js';
 
+import {
+    HUMAN_TYPE,
+    Player
+} from '../modules/player.js';
+
 export default class TrainingScene extends Game {
 
     constructor() {
 
-		super('training', [{
-            type : 'human'
-        }]);
+		super('training', [new Player({
+			type  : HUMAN_TYPE,
+			login : 'Player'
+		})]);
     }
 
 	preload() {
