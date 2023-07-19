@@ -12,7 +12,7 @@ export default class TrainingScene extends Game {
 		super('training', [new Player({
 			type  : HUMAN_TYPE,
 			login : 'Player'
-		})]);
+		})], true);
     }
 
 	preload() {

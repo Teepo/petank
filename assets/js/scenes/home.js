@@ -63,10 +63,12 @@ export default class HomeScene extends Phaser.Scene {
                 mode : WAITING_ONEPLAYER_MODE,
                 players : [new Player({
                     type  : HUMAN_TYPE,
-                    login : 'Player'
+                    login : 'Player',
+                    ball  : 'earth.svg'
                 }), new Player({
                     type  : COMPUTER_TYPE,
-                    login : 'Computer'
+                    login : 'Computer',
+                    ball  : 'sleep.svg'
                 })]
             });
         });

@@ -31,8 +31,9 @@ export default class GameScene extends Phaser.Scene {
 		super(sceneName);
     }
 
-	init({ players = [] }) {
-		this.players = players;
+	init({ players = [], isTrainingMode = false }) {
+		this.players        = players;
+		this.isTrainingMode = isTrainingMode;
 	}
 
 	preload() {
@@ -58,6 +59,12 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	update() {
+
+		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
+			console.log('the end');
+			return;
+		}
+
 		this.checkIfAddAnotherBallIsNeeded();
 	}
 
@@ -104,9 +111,17 @@ export default class GameScene extends Phaser.Scene {
 		}
 	}
 
+	checkIfAllPlayersHaveShootedTheirBalls() {
+		return this.players.filter(player => player.remainingBallCount <= 0).length === this.players.length;
+	}
+
 	theEndOfBallShoot() {
 
 		this.nextTurn();
+
+		const player = this.getPlayerForThisTurn();
+
+		player.remainingBallCount--;
 
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
@@ -122,8 +137,6 @@ export default class GameScene extends Phaser.Scene {
 		this.addBall();
 
 		this.resetCameraToCurrentBall();
-
-		const player = this.getPlayerForThisTurn();
 
 		if (player.isComputer()) {
 
