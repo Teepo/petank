@@ -1,5 +1,5 @@
 <template>
-    <v-container v-for="player in players" :key="player.id">
+    <v-container v-for="(player, index) in players" :key="player.id">
         <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'">
             <v-card-item>
                 <v-card-text>
@@ -7,7 +7,7 @@
 
                         <v-col cols="10">
                             <v-row class="align-center">
-                                <img :src="`assets/img/balls/${player.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="shouldDisplayOverlayBalls = !shouldDisplayOverlayBalls">
+                                <img :src="`assets/img/balls/${player.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
                                 <strong class="font-weight-bold">
                                     {{ player.login }}
                                 </strong>
@@ -35,27 +35,27 @@
                 </v-card-text>
             </v-card-item>
         </v-card>
+
+        <v-dialog
+            v-model="player.shouldDisplayOverlayBalls"
+            contained
+            class="align-center justify-center"
+        >
+            <v-card>
+                <v-card-item>
+                    <v-card-text>
+                        <template v-for="image in this.ballsImages">
+                            <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage(player, this.getFileNameAndExtension(image))">
+                        </template>
+                    </v-card-text>
+                </v-card-item>
+            </v-card>
+        </v-dialog>
     </v-container>
 
     <v-container v-if="this.isOneplayer()">
         <v-btn class="bg-primary" block @click="startOnePlayerMode">START</v-btn>
     </v-container>
-
-    <v-dialog
-        v-model="shouldDisplayOverlayBalls"
-        contained
-        class="align-center justify-center"
-    >
-        <v-card>
-            <v-card-item>
-                <v-card-text>
-                    <template v-for="image in this.ballsImages">
-                        <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage" :data-name="this.getFileNameAndExtension(image)">
-                    </template>
-                </v-card-text>
-            </v-card-item>
-        </v-card>
-    </v-dialog>
 </template>
 
 <script>
@@ -160,22 +160,21 @@ export default {
             this.player.isReady = !this.player.isReady;
         },
 
-        selectBallImage(event) {
+        showOverlayBall(player) {
+            player.shouldDisplayOverlayBalls = true;
+        },
+
+        selectBallImage(player, ballName) {
 
             if (this.isOneplayer()) {
-
-                const player = this.players.find(player => {
-                    return player.isHuman();
-                });
-
-                player.ball = event.target.dataset.name;
+                player.ball = ballName;
             }
 
             if (this.isMultiplayer()) {
 
             }
 
-            this.shouldDisplayOverlayBalls = false;
+            player.shouldDisplayOverlayBalls = false;
         },
 
         isMultiplayer() {
