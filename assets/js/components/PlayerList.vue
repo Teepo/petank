@@ -7,12 +7,15 @@
                     <v-row class="justify-space-between align-center">
                         <strong class="font-weight-bold">{{ player.login }}</strong>
                         <v-checkbox-btn
-                            v-if="this.id == player.id"
+                            v-if="this.isMultiplayer() && this.id == player.id"
                             @click="setPlayerReadyHandler"
                             :model-value="player.isReady"
                             label="Je suis prêt(e)"
                             ></v-checkbox-btn>
-                        <template v-else>
+                        <template v-else-if="this.isOneplayer()">
+                            <v-icon icon="mdi-check" color="green-lighten-1"></v-icon>
+                        </template>
+                        <template v-else-if="this.isMultiplayer()">
                             <v-icon v-if="player.isReady" icon="mdi-check" color="green-lighten-1"></v-icon>
                             <v-icon v-else icon="mdi-close" color="red-lighten-1"></v-icon>
                             {{ player.id }}
@@ -22,46 +25,74 @@
             </v-card-item>
         </v-card>
     </v-container>
+
+    <v-container v-if="this.isOneplayer()">
+        <v-btn class="bg-primary" block @click="startOnePlayerMode">START</v-btn>
+    </v-container>
 </template>
 
 <script>
+
+import {
+    WAITING_MULTIPLAYER_MODE,
+    WAITING_ONEPLAYER_MODE
+} from '../config';
 
 import { socket } from './../modules/ws.js';
 
 export default {
 
-	data() {
+    props: ['_player', '_players', '_mode', '_sceneManager'],
 
-		return {
-            player  : this.$attrs.player,
-			players : []
-		}
-	},
+    data() {
+
+        return {
+            player       : this.$props._player,
+            players      : this.$props._players,
+            mode         : this.$props._mode,
+            sceneManager : this.$props._sceneManager,
+        }
+    },
     
     async mounted() {
 
         document.querySelector('.player-list').classList.add('player-list--is-visible');
 
-        this.id   = sessionStorage.getItem('id');
-        this.room = sessionStorage.getItem('room');
-        
-        socket.emit('getAllPlayers');
-        socket.on('getAllPlayers', data => {
-			this.handleGetAllPlayers(data);
-		});
-        
-        socket.on('joinedRoom', data => {
-			this.handleJoinedRoom(data);
-        });
-
-        socket.on('setPlayerIsReady', data => {
-
-            const { player } = data;
-
-            this.players.find(p => p.id == player.id).isReady = player.isReady;
-        });
+        if (this.isMultiplayer()) {
+            this.initMultiplayerMode();
+        }
     },
     methods : {
+
+        initMultiplayerMode() {
+
+            this.id   = sessionStorage.getItem('id');
+            this.room = sessionStorage.getItem('room');
+
+            socket.emit('getAllPlayers');
+            socket.on('getAllPlayers', data => {
+                this.handleGetAllPlayers(data);
+            });
+
+            socket.on('joinedRoom', data => {
+                this.handleJoinedRoom(data);
+            });
+
+            socket.on('setPlayerIsReady', data => {
+
+                const { player } = data;
+
+                this.players.find(p => p.id == player.id).isReady = player.isReady;
+            });
+        },
+
+        startOnePlayerMode() {
+            document.querySelector('.player-list').remove();
+            this.sceneManager.stop('waitingRoom');
+            this.sceneManager.start('onePlayer', {
+                players : this.players
+            });
+        },
 
 		handleGetAllPlayers(data) {
 			const { players } = data;
@@ -80,6 +111,14 @@ export default {
             });
 
             this.player.isReady = !this.player.isReady;
+        },
+
+        isMultiplayer() {
+            return this.mode === WAITING_MULTIPLAYER_MODE;
+        },
+
+        isOneplayer() {
+            return this.mode === WAITING_ONEPLAYER_MODE;
         }
     }
 }

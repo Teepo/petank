@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import { WAITING_MULTIPLAYER_MODE } from '../config';
+
 import logo from './../../img/logo.png';
 
 import backgroundSand from './../../img/background-sand.jpg';
@@ -12,7 +14,6 @@ import { wsErrorHandler } from '../modules/wsErrorHandler.js';
 export default class NewPlayer extends Phaser.Scene {
 
     constructor() {
-
         super('newPlayer');
     }
 
@@ -25,12 +26,7 @@ export default class NewPlayer extends Phaser.Scene {
 
 	create() {
 
-        if (!!sessionStorage.getItem('id')) {
-            socket.removeAllListeners();
-            this.scene.stop('newPlayer');
-            this.scene.start('waitingRoom');
-            return;
-        }
+        this.restoreSessionIfNeeded();
 
 		this.updateBackground();
 
@@ -48,17 +44,19 @@ export default class NewPlayer extends Phaser.Scene {
                 return;
             }
 
-            const form = document.querySelector('.form-new-player');
-
             const { player } = data;
 
             sessionStorage.setItem('id', player.id);
             sessionStorage.setItem('room', 'petank');
 
             socket.removeAllListeners();
-            this.scene.start('waitingRoom');
 
-            form.remove();
+            this.scene.stop('newPlayer');
+            this.scene.start('waitingRoom', {
+                mode : WAITING_MULTIPLAYER_MODE
+            });
+
+            document.querySelector('.form-new-player').remove();
         });
 	}
 
@@ -86,6 +84,41 @@ export default class NewPlayer extends Phaser.Scene {
             .setFontFamily('Helvetica')
             .setTint(0x1da1f2)
         ;
+    }
+
+    restoreSessionIfNeeded() {
+
+        const id   = sessionStorage.getItem('id');
+        const room = sessionStorage.getItem('room');
+
+        if (!id || !room) {
+            return;
+        }
+
+        socket.emit('getPlayer', {
+            id       : id,
+            roomName : room
+        });
+
+        socket.on('getPlayer', data => {
+
+            const { player, error } = data;
+
+            if (error) {
+                return;
+            }
+
+            if (!player.id) {
+                return;
+            }
+
+            document.querySelector('.form-new-player').remove();
+            socket.removeAllListeners();
+            this.scene.stop('home');
+            this.scene.start('waitingRoom', {
+                mode : WAITING_MULTIPLAYER_MODE
+            });
+		});
     }
 
     clickOnJoinButtonHandler() {

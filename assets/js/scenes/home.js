@@ -1,5 +1,13 @@
 import Phaser from 'phaser';
 
+import { WAITING_ONEPLAYER_MODE } from '../config/index.js';
+
+import {
+    COMPUTER_TYPE,
+    HUMAN_TYPE,
+    Player
+} from '../modules/player.js';
+
 import { socket } from './../modules/ws.js';
 
 import logo from './../../img/logo.png';
@@ -23,8 +31,6 @@ export default class HomeScene extends Phaser.Scene {
 
 	create() {
 
-        this.restoreSessionIfNeeded();
-
 		this.updateBackground();
 
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
@@ -32,38 +38,6 @@ export default class HomeScene extends Phaser.Scene {
 
         this.createButtons();
 	}
-
-    restoreSessionIfNeeded() {
-
-        const id   = sessionStorage.getItem('id');
-        const room = sessionStorage.getItem('room');
-
-        if (!id || !room) {
-            return;
-        }
-
-        socket.emit('getPlayer', {
-            id       : id,
-            roomName : room
-        });
-
-        socket.on('getPlayer', data => {
-
-            const { player, error } = data;
-
-            if (error) {
-                return;
-            }
-
-            if (!player.id) {
-                return;
-            }
-
-            socket.removeAllListeners();
-            this.scene.stop('home');
-            this.scene.start('waitingRoom');
-		});
-    }
 
     createButtons() {
 
@@ -87,7 +61,16 @@ export default class HomeScene extends Phaser.Scene {
         this.onePlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
         this.onePlayerButton.on('pointerup', () => {
             this.scene.stop('home');
-            this.scene.start('onePlayer');
+            this.scene.start('waitingRoom', {
+                mode : WAITING_ONEPLAYER_MODE,
+                players : [new Player({
+                    type  : HUMAN_TYPE,
+                    login : 'Player'
+                }), new Player({
+                    type  : COMPUTER_TYPE,
+                    login : 'Computer'
+                })]
+            });
         });
 
         // ----------------------------

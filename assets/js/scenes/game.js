@@ -1,13 +1,18 @@
 import Phaser from 'phaser';
 
+import {
+	GAME_BALL_BOUNCE,
+	GAME_BALL_FRICTION,
+	GAME_BALL_FRICTION_AIR,
+	GAME_BALL_WIDTH
+} from '../config';
+
 import ball from './../../img/ball.png';
 import arrow from './../../img/arrow.png';
 import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
 import { showAlert } from './../modules/alert.js'
-
-const BALL_WIDTH = 84;
 
 export default class GameScene extends Phaser.Scene {
 
@@ -23,12 +28,13 @@ export default class GameScene extends Phaser.Scene {
 	turnCount = 0;
 	players = [];
 
-    constructor(sceneName, players = []) {
-
+    constructor(sceneName) {
 		super(sceneName);
-
-		this.players = players;
     }
+
+	init({ players = [] }) {
+		this.players = players;
+	}
 
 	preload() {
 		this.load.image('ball', ball);
@@ -130,7 +136,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	getDistanceBetweenBallAndCochonnet() {
-		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y) - (BALL_WIDTH / 2);
+		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y) - (GAME_BALL_WIDTH / 2);
 	}
 
 	getPixelDistanceToHumanDistance(px) {
@@ -157,13 +163,13 @@ export default class GameScene extends Phaser.Scene {
 
 		const player = this.getPlayerForThisTurn();
 
-		this.currentBall = this.matter.add.image(BALL_WIDTH, BALL_WIDTH, 'ball');
+		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, 'ball');
 
 		this.currentBall.setCircle();
-		this.currentBall.setFriction(0.005);
-		this.currentBall.setBounce(.2);
+		this.currentBall.setFriction(GAME_BALL_FRICTION);
+		this.currentBall.setFrictionAir(GAME_BALL_FRICTION_AIR);
+		this.currentBall.setBounce(GAME_BALL_BOUNCE);
 		this.currentBall.setVelocity(0);
-		this.currentBall.setFrictionAir(.015);
 
 		this.currentBall.x = this.game.config.width / 2;
 		this.currentBall.y = this.game.config.height * 2 - 300;
@@ -256,6 +262,8 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	shootBall(x, y) {
+
+		console.log(x, y)
 
 		const min = -10;
 		const max = 10;

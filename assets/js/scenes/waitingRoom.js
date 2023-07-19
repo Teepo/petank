@@ -4,6 +4,11 @@ import { createApp } from 'vue';
 
 import { vuetify } from '../plugins/vuetify';
 
+import {
+    WAITING_MULTIPLAYER_MODE,
+    WAITING_ONEPLAYER_MODE
+} from '../config';
+
 import logo from './../../img/logo.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
@@ -23,16 +28,33 @@ export default class WaitingRoom extends Phaser.Scene {
         this.load.image('logo', logo);
 	}
 
-	create() {
+	init({ mode = WAITING_ONEPLAYER_MODE, players = [] }) {
+
+        this.mode    = mode;
+        this.players = players;
 
 		this.updateBackground();
 
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
         this.logo.setScale(.35);
 
-        socket.on('connect', () => {
-            this.socket.emit('getAllPlayers');
-        });
+        if (this.isOneplayer()) {
+
+            createApp(PlayerList, {
+                _players      : this.players,
+                _mode         : this.mode,
+                _sceneManager : this.scene
+            })
+            .use(vuetify)
+            .mount('.player-list');
+        }
+
+        if (this.isMultiplayer()) {
+            this.initMultiplayerMode();
+        }
+	}
+
+    initMultiplayerMode() {
 
         this.id   = sessionStorage.getItem('id');
         this.room = sessionStorage.getItem('room');
@@ -40,8 +62,13 @@ export default class WaitingRoom extends Phaser.Scene {
         if (!this.id || !this.room) {
             socket.removeAllListeners();
             this.scene.stop('waitingRoom');
-            return this.scene.start('newPlayer');
+            this.scene.start('newPlayer');
+            return;
         }
+
+        socket.on('connect', () => {
+            this.socket.emit('getAllPlayers');
+        });
 
         socket.emit('getPlayer', {
             id       : this.id,
@@ -49,8 +76,6 @@ export default class WaitingRoom extends Phaser.Scene {
         });
 
         socket.on('getPlayer', data => {
-
-            console.log('getPlayer', data)
 
             const error = wsErrorHandler(data);
 
@@ -65,7 +90,10 @@ export default class WaitingRoom extends Phaser.Scene {
             const { player } = data;
 			this.player = player;
 
-            createApp(PlayerList, { player : this.player })
+            createApp(PlayerList, {
+                _player : this.player,
+                _mode   : this.mode
+            })
             .use(vuetify)
             .mount('.player-list');
 		});
@@ -76,14 +104,22 @@ export default class WaitingRoom extends Phaser.Scene {
             this.scene.stop('waitingRoom');
             this.scene.start('game');
 		});
-	}
+    }
 
     update() {
-        this.backgroundSand.tilePositionX -= .5;
-        this.backgroundSand.tilePositionY -= .5;
+        this.backgroundSand && (this.backgroundSand.tilePositionX -= .5);
+        this.backgroundSand && (this.backgroundSand.tilePositionY -= .5);
     }
 
 	updateBackground() {
 		this.backgroundSand = this.add.tileSprite(window.innerWidth / 2, window.innerHeight / 2, window.innerWidth, window.innerHeight, 'background-sand');
 	}
+
+    isMultiplayer() {
+        return this.mode === WAITING_MULTIPLAYER_MODE;
+    }
+
+    isOneplayer() {
+        return this.mode === WAITING_ONEPLAYER_MODE;
+    }
 }
