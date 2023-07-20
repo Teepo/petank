@@ -104,6 +104,14 @@ export default class WaitingRoom extends Phaser.Scene {
             this.scene.stop('waitingRoom');
             this.scene.start('game');
 		});
+
+        window.addEventListener("beforeunload", () => {
+            socket.emit('setPlayerIsReady', {
+                player   : this.player,
+                roomName : this.room,
+                value    : false
+            });
+        });
     }
 
     update() {

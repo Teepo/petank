@@ -221,6 +221,10 @@ export default {
 
     .v-card {
 
+        &-item {
+            height: 60px;
+        }
+
         &.v-theme {
 
             &--is-ready {
@@ -235,12 +239,19 @@ export default {
 
     .v-overlay {
 
-        .v-card-text {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
+        .v-card {
+
+            &-item {
+                height: auto;
+            }
+
+            &-text {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+            }
         }
     }
 </style>
