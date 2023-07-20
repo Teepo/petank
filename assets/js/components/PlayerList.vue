@@ -27,7 +27,6 @@
                             <template v-else-if="this.isMultiplayer()">
                                 <v-icon v-if="player.isReady" icon="mdi-check" color="green-lighten-1"></v-icon>
                                 <v-icon v-else icon="mdi-close" color="red-lighten-1"></v-icon>
-                                {{ player.id }}
                             </template>
                         </v-col>
 
@@ -154,7 +153,8 @@ export default {
         setPlayerReadyHandler() {
 
             socket.emit('setPlayerIsReady', {
-                player : this.player
+                player   : this.player,
+                roomName : this.room
             });
 
             this.player.isReady = !this.player.isReady;

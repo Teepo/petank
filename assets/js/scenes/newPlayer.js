@@ -37,6 +37,12 @@ export default class NewPlayer extends Phaser.Scene {
 
         socket.on('joinedRoom', data => {
 
+            const { socketId } = data;
+
+            if (socket.id !== socketId) {
+                return;
+            }
+
             const error = wsErrorHandler(data);
 
             if (error) {
