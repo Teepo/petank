@@ -130,6 +130,17 @@ export default {
 
                 this.players.find(p => p.id == player.id).isReady = player.isReady;
             });
+
+            socket.on('addPlayerCustomData', data => {
+
+                const { player } = data;
+
+                if (player.id !== this.id) {
+                    return;
+                }
+
+                this.players.find(p => p.id == player.id).customData = player.customData;
+            });
         },
 
         startOnePlayerMode() {

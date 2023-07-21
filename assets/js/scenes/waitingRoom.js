@@ -110,7 +110,13 @@ export default class WaitingRoom extends Phaser.Scene {
             });
 		});
 
-        socket.on('addPlayerCustomData', () => {
+        socket.on('addPlayerCustomData', data => {
+
+            const { player } = data;
+
+            if (player.id !== this.id) {
+                return;
+            }
 
             createApp(PlayerList, {
                 _player : this.player,
