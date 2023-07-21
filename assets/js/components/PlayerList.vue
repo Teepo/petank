@@ -3,9 +3,9 @@
         <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'">
             <v-card-item>
                 <v-card-text>
-                    <v-row class="align-center">
+                    <v-row class="align-center" no-gutters>
 
-                        <v-col cols="10">
+                        <v-col cols="8">
                             <v-row class="align-center">
                                 <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
                                 <strong class="font-weight-bold">
@@ -14,7 +14,7 @@
                             </v-row>
                         </v-col>
 
-                        <v-col cols="2">
+                        <v-col cols="4" class="player-list-status">
                             <v-checkbox-btn
                                 v-if="this.isMultiplayer() && this.id == player.id"
                                 @click="setPlayerReadyHandler"
@@ -207,6 +207,7 @@ export default {
 
 <style lang="scss">
     .player-list {
+
         display: none;
         position: absolute;
         top: 0;
@@ -220,6 +221,11 @@ export default {
 
         &--is-visible {
             display: flex;
+        }
+
+        &-status {
+            display: flex;
+            justify-content: end;
         }
     }
 
@@ -257,5 +263,9 @@ export default {
                 justify-content: center;
             }
         }
+    }
+
+    .v-col .v-label {
+        font-size: .85rem;
     }
 </style>
