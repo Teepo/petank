@@ -10,16 +10,19 @@ export class Player {
         this.id      = id;
         this.login   = login;
         this.isReady = true;
-        this.type    = type;
-        this.ball    = ball;
-        this.remainingBallCount = remainingBallCount;
+
+        this.customData = {
+            type : type,
+            ball : ball,
+            remainingBallCount : remainingBallCount
+        };
     }
 
     isHuman() {
-        return this.type === HUMAN_TYPE;
+        return this.customData.type === HUMAN_TYPE;
     }
 
     isComputer() {
-        return this.type === COMPUTER_TYPE;
+        return this.customData.type === COMPUTER_TYPE;
     }
 }

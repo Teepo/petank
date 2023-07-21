@@ -80,7 +80,7 @@ export default class GameScene extends Phaser.Scene {
 	loadPlayersBall() {
 
 		this.players.map(async player => {
-			this.load.image(player.ball, (await import(`./../../img/balls/${player.ball}`)).default);
+			this.load.image(player.customData.ball, (await import(`./../../img/balls/${player.customData.ball}`)).default);
 		});
 	}
 
@@ -112,7 +112,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	checkIfAllPlayersHaveShootedTheirBalls() {
-		return this.players.filter(player => player.remainingBallCount <= 0).length === this.players.length;
+		return this.players.filter(player => player.customData.remainingBallCount <= 0).length === this.players.length;
 	}
 
 	theEndOfBallShoot() {
@@ -121,7 +121,7 @@ export default class GameScene extends Phaser.Scene {
 
 		const player = this.getPlayerForThisTurn();
 
-		player.remainingBallCount--;
+		player.customData.remainingBallCount--;
 
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
@@ -184,7 +184,7 @@ export default class GameScene extends Phaser.Scene {
 
 		const player = this.getPlayerForThisTurn();
 
-		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, player.ball);
+		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, player.customData.ball);
 
 		this.currentBall.setCircle();
 		this.currentBall.setFriction(GAME_BALL_FRICTION);

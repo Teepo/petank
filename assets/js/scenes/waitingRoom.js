@@ -15,6 +15,11 @@ import backgroundSand from './../../img/background-sand.jpg';
 import { socket } from './../modules/ws.js';
 import { wsErrorHandler } from '../modules/wsErrorHandler.js';
 
+import {
+    HUMAN_TYPE,
+    Player
+} from '../modules/player.js';
+
 import PlayerList from '../components/PlayerList.vue';
 
 export default class WaitingRoom extends Phaser.Scene {
@@ -87,8 +92,25 @@ export default class WaitingRoom extends Phaser.Scene {
                 return;
             }
 
-            const { player } = data;
-			this.player = player;
+            let { player } = data;
+
+            const customPlayer = new Player({
+                type : HUMAN_TYPE,
+                ball : 'beach-ball.png',
+            });
+
+            player.customData = customPlayer.customData;
+
+            this.player = player;
+
+            socket.emit('addPlayerCustomData', {
+                player     : this.player,
+                roomName   : this.room,
+                customData : player.customData
+            });
+		});
+
+        socket.on('addPlayerCustomData', () => {
 
             createApp(PlayerList, {
                 _player : this.player,
@@ -96,7 +118,7 @@ export default class WaitingRoom extends Phaser.Scene {
             })
             .use(vuetify)
             .mount('.player-list');
-		});
+        });
 
         socket.on('start', () => {
             socket.removeAllListeners();

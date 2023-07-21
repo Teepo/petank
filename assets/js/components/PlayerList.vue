@@ -7,7 +7,7 @@
 
                         <v-col cols="10">
                             <v-row class="align-center">
-                                <img :src="`assets/img/balls/${player.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
+                                <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
                                 <strong class="font-weight-bold">
                                     {{ player.login }}
                                 </strong>
@@ -19,7 +19,7 @@
                                 v-if="this.isMultiplayer() && this.id == player.id"
                                 @click="setPlayerReadyHandler"
                                 :model-value="player.isReady"
-                                label="Je suis prêt(e)"
+                                label="I'm ready"
                                 ></v-checkbox-btn>
                             <template v-else-if="this.isOneplayer()">
                                 <v-icon icon="mdi-check" color="green-lighten-1"></v-icon>
@@ -167,7 +167,7 @@ export default {
         selectBallImage(player, ballName) {
 
             if (this.isOneplayer()) {
-                player.ball = ballName;
+                player.customData.ball = ballName;
             }
 
             if (this.isMultiplayer()) {
