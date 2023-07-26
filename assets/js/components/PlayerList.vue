@@ -1,59 +1,66 @@
 <template>
-    <v-container v-for="(player, index) in players" :key="player.id">
-        <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'">
-            <v-card-item>
-                <v-card-text>
-                    <v-row class="align-center" no-gutters>
-
-                        <v-col cols="8">
-                            <v-row class="align-center">
-                                <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
-                                <strong class="font-weight-bold">
-                                    {{ player.login }}
-                                </strong>
-                            </v-row>
-                        </v-col>
-
-                        <v-col cols="4" class="player-list-status">
-                            <v-checkbox-btn
-                                v-if="this.isMultiplayer() && this.id == player.id"
-                                @click="setPlayerReadyHandler"
-                                :model-value="player.isReady"
-                                label="I'm ready"
-                                ></v-checkbox-btn>
-                            <template v-else-if="this.isOneplayer()">
-                                <v-icon icon="mdi-check" color="green-lighten-1"></v-icon>
-                            </template>
-                            <template v-else-if="this.isMultiplayer()">
-                                <v-icon v-if="player.isReady" icon="mdi-check" color="green-lighten-1"></v-icon>
-                                <v-icon v-else icon="mdi-close" color="red-lighten-1"></v-icon>
-                            </template>
-                        </v-col>
-
-                    </v-row>
-                </v-card-text>
-            </v-card-item>
-        </v-card>
-
-        <v-dialog
-            v-model="player.shouldDisplayOverlayBalls"
-            contained
-            class="align-center justify-center"
-        >
-            <v-card>
+    <v-container class="mt-16">
+        <v-container v-for="(player, index) in players" :key="player.id">
+            <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'">
                 <v-card-item>
                     <v-card-text>
-                        <template v-for="image in this.ballsImages">
-                            <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage(player, this.getFileNameAndExtension(image))">
-                        </template>
+                        <v-row class="align-center" no-gutters>
+
+                            <v-col cols="8">
+                                <v-row class="align-center">
+                                    <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
+                                    <strong class="font-weight-bold">
+                                        {{ player.login }}
+                                    </strong>
+                                </v-row>
+                            </v-col>
+
+                            <v-col cols="4" class="player-list-status">
+                                <v-checkbox-btn
+                                    v-if="this.isMultiplayer() && this.id == player.id"
+                                    @click="setPlayerReadyHandler"
+                                    :model-value="player.isReady"
+                                    label="I'm ready"
+                                    ></v-checkbox-btn>
+                                <template v-else-if="this.isOneplayer()">
+                                    <v-icon icon="mdi-check" color="green-lighten-1"></v-icon>
+                                </template>
+                                <template v-else-if="this.isMultiplayer()">
+                                    <v-icon v-if="player.isReady" icon="mdi-check" color="green-lighten-1"></v-icon>
+                                    <v-icon v-else icon="mdi-close" color="red-lighten-1"></v-icon>
+                                </template>
+                            </v-col>
+
+                        </v-row>
                     </v-card-text>
                 </v-card-item>
             </v-card>
-        </v-dialog>
-    </v-container>
 
-    <v-container v-if="this.isOneplayer()">
-        <v-btn class="bg-primary" block @click="startOnePlayerMode">START</v-btn>
+            <v-dialog
+                v-model="player.shouldDisplayOverlayBalls"
+                contained
+                class="align-center justify-center"
+            >
+                <v-card>
+                    <v-card-item>
+                        <v-card-text>
+                            <template v-for="image in this.ballsImages">
+                                <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage(player, this.getFileNameAndExtension(image))">
+                            </template>
+                        </v-card-text>
+                    </v-card-item>
+                </v-card>
+            </v-dialog>
+        </v-container>
+
+        <v-container v-if="this.isOneplayer()">
+            <v-btn class="bg-primary mt-10" block @click="startOnePlayerMode">START</v-btn>
+            <v-btn class="mt-5" block @click="back" color="grey-lighten-3">CANCEL</v-btn>
+        </v-container>
+
+        <v-container v-if="this.isMultiplayer()">
+            <v-btn class="bg-red mt-10" block @click="leaveTheRoom">LEAVE THE ROOM</v-btn>
+        </v-container>
     </v-container>
 </template>
 
@@ -79,7 +86,7 @@ export default {
 
         return {
             player       : this.$props._player,
-            players      : this.$props._players,
+            players      : this.$props._players ?? [],
             mode         : this.$props._mode,
             sceneManager : this.$props._sceneManager,
             ballsImages  : [],
@@ -115,9 +122,11 @@ export default {
             this.id   = sessionStorage.getItem('id');
             this.room = sessionStorage.getItem('room');
 
-            socket.emit('getAllPlayers');
-            socket.on('getAllPlayers', data => {
-                this.handleGetAllPlayers(data);
+            socket.emit('getAllPlayersFromRoom', {
+                roomName : this.room
+            });
+            socket.on('getAllPlayersFromRoom', data => {
+                this.handleGetAllPlayersFromRoom(data);
             });
 
             socket.on('joinedRoom', data => {
@@ -131,20 +140,75 @@ export default {
                 this.players.find(p => p.id == player.id).isReady = player.isReady;
             });
 
-            socket.on('addPlayerCustomData', () => {
-                socket.emit('getAllPlayers');
+            socket.on('addedPlayerCustomData', () => {
+                socket.emit('getAllPlayersFromRoom', {
+                    roomName : this.room
+                });
+            });
+
+            socket.on('leavedRoom', data => {
+
+                const { id } = data;
+
+                const index = this.players.findIndex(p => p.id == id);
+
+                if (index === -1) {
+                    return;
+                }
+
+                this.players.splice(index, 1);
+            });
+
+            socket.on('deletedPlayer', data => {
+
+                const { id } = data;
+
+                // kick mode
+                if (this.id === id) {
+                    return this.back();
+                }
+
+                const index = this.players.findIndex(p => p.id == id);
+
+                if (index === -1) {
+                    return;
+                }
+
+                this.players.splice(index, 1);
             });
         },
 
         startOnePlayerMode() {
-            document.querySelector('.player-list').remove();
+
             this.sceneManager.stop('waitingRoom');
             this.sceneManager.start('onePlayer', {
                 players : this.players
             });
+
+            document.querySelector('.player-list').innerHTML = '';
         },
 
-		handleGetAllPlayers(data) {
+        back() {
+
+            sessionStorage.clear();
+
+            this.sceneManager.stop('waitingRoom');
+            this.sceneManager.start('home');
+
+            document.querySelector('.player-list').innerHTML = '';
+        },
+
+        leaveTheRoom() {
+
+            socket.emit('leaveRoom', {
+                id       : this.id,
+                roomName : this.room
+            });
+
+            this.back();
+        },
+
+		handleGetAllPlayersFromRoom(data) {
 			const { players } = data;
 			this.players = players;
 		},
@@ -170,9 +234,7 @@ export default {
 
         selectBallImage(player, ballName) {
 
-            if (this.isOneplayer()) {
-                player.customData.ball = ballName;
-            }
+            player.customData.ball = ballName;
 
             if (this.isMultiplayer()) {
 

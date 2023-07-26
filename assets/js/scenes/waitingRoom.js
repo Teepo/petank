@@ -110,17 +110,12 @@ export default class WaitingRoom extends Phaser.Scene {
             });
 		});
 
-        socket.on('addPlayerCustomData', data => {
-
-            const { player } = data;
-
-            if (player.id !== this.id) {
-                return;
-            }
+        socket.on('addedPlayerCustomData', () => {
 
             createApp(PlayerList, {
-                _player : this.player,
-                _mode   : this.mode
+                _player       : this.player,
+                _mode         : this.mode,
+                _sceneManager : this.scene
             })
             .use(vuetify)
             .mount('.player-list');
@@ -128,7 +123,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
         socket.on('start', () => {
             socket.removeAllListeners();
-            document.querySelector('.player-list').remove();
+            document.querySelector('.player-list').innerHTML = '';
             this.scene.stop('waitingRoom');
             this.scene.start('game');
 		});
