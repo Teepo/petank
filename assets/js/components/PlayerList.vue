@@ -165,6 +165,7 @@ export default {
 
                 // kick mode
                 if (this.id === id) {
+                    socket.removeAllListeners();
                     return this.back();
                 }
 
@@ -199,6 +200,8 @@ export default {
         },
 
         leaveTheRoom() {
+
+            socket.removeAllListeners();
 
             socket.emit('leaveRoom', {
                 id       : this.id,
