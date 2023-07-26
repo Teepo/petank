@@ -122,6 +122,13 @@ export default {
             this.id   = sessionStorage.getItem('id');
             this.room = sessionStorage.getItem('room');
 
+            socket.on('start', () => {
+                socket.removeAllListeners();
+                document.querySelector('.player-list').innerHTML = '';
+                this.sceneManager.stop('waitingRoom');
+                this.sceneManager.start('game');
+            });
+
             socket.emit('getAllPlayersFromRoom', {
                 roomName : this.room
             });
@@ -140,10 +147,11 @@ export default {
                 this.players.find(p => p.id == player.id).isReady = player.isReady;
             });
 
-            socket.on('addedPlayerCustomData', () => {
-                socket.emit('getAllPlayersFromRoom', {
-                    roomName : this.room
-                });
+            socket.on('addedPlayerCustomData', data => {
+
+                const { player } = data;
+
+                this.players.find(p => p.id == player.id).customData = player.customData;
             });
 
             socket.on('leavedRoom', data => {
@@ -232,6 +240,11 @@ export default {
         },
 
         showOverlayBall(player) {
+
+            if (this.id !== player.id) {
+                return;
+            }
+
             player.shouldDisplayOverlayBalls = true;
         },
 
@@ -239,8 +252,16 @@ export default {
 
             player.customData.ball = ballName;
 
-            if (this.isMultiplayer()) {
+            if (this.isMultiplayer() && this.id !== player.id) {
+                return;
+            }
 
+            if (this.isMultiplayer()) {
+                socket.emit('addPlayerCustomData', {
+                    roomName   : this.room,
+                    player     : player,
+                    customData : player.customData
+                });
             }
 
             player.shouldDisplayOverlayBalls = false;

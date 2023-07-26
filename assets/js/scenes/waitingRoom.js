@@ -112,6 +112,8 @@ export default class WaitingRoom extends Phaser.Scene {
 
         socket.on('addedPlayerCustomData', () => {
 
+            socket.removeAllListeners();
+
             createApp(PlayerList, {
                 _player       : this.player,
                 _mode         : this.mode,
@@ -120,13 +122,6 @@ export default class WaitingRoom extends Phaser.Scene {
             .use(vuetify)
             .mount('.player-list');
         });
-
-        socket.on('start', () => {
-            socket.removeAllListeners();
-            document.querySelector('.player-list').innerHTML = '';
-            this.scene.stop('waitingRoom');
-            this.scene.start('game');
-		});
 
         window.addEventListener("beforeunload", () => {
             socket.emit('setPlayerIsReady', {
