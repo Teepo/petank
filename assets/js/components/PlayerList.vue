@@ -129,7 +129,7 @@ export default {
 
             socket.on('start', () => {
                 socket.removeAllListeners();
-                document.querySelector('.player-list').innerHTML = '';
+                document.querySelector('.player-list').remove();
                 this.sceneManager.stop('waitingRoom');
                 this.sceneManager.start('multiPlayer', {
                     players : this.players
