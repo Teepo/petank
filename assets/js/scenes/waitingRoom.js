@@ -54,8 +54,7 @@ export default class WaitingRoom extends Phaser.Scene {
             .use(vuetify)
             .mount('.player-list');
         }
-
-        if (this.isMultiplayer()) {
+        else if (this.isMultiplayer()) {
             this.initMultiplayerMode();
         }
 	}

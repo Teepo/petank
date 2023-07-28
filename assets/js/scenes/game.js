@@ -33,13 +33,12 @@ export default class GameScene extends Phaser.Scene {
 		super(sceneName);
     }
 
-	init({ players = [], isTrainingMode = false }) {
+	init({ players = [], isMultiplayerMode = false }) {
 
-		this.players        = players;
-		this.isTrainingMode = isTrainingMode;
+		this.players           = players;
+		this.isMultiplayerMode = isMultiplayerMode;
 
-		this.players.toArray().map(player => {
-
+		this.isMultiplayerMode && this.players.toArray().map(player => {
 			this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
                 type : HUMAN_TYPE,
                 ball : player.customData.ball

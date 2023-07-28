@@ -132,7 +132,8 @@ export default {
                 document.querySelector('.player-list').remove();
                 this.sceneManager.stop('waitingRoom');
                 this.sceneManager.start('multiPlayer', {
-                    players : this.players
+                    players           : this.players,
+                    isMultiplayerMode : true
                 });
             });
 
