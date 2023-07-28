@@ -15,6 +15,9 @@ import { showAlert } from './../modules/alert.js'
 import { mergeObjectsWithPrototypes } from '../utils/object';
 import { HUMAN_TYPE, Player } from '../modules/player';
 
+import { socket } from './../modules/ws.js';
+import { wsErrorHandler } from '../modules/wsErrorHandler.js';
+
 export default class GameScene extends Phaser.Scene {
 
 	targetingModeIsEnabled = false;
@@ -38,12 +41,18 @@ export default class GameScene extends Phaser.Scene {
 		this.players           = players;
 		this.isMultiplayerMode = isMultiplayerMode;
 
-		this.isMultiplayerMode && this.players.toArray().map(player => {
-			this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
-                type : HUMAN_TYPE,
-                ball : player.customData.ball
-            }), player));
-		});
+		if (this.isMultiplayerMode) {
+
+			this.id   = sessionStorage.getItem('id');
+			this.room = sessionStorage.getItem('room');
+
+			this.players.toArray().map(player => {
+				this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
+					type : HUMAN_TYPE,
+					ball : player.customData.ball
+				}), player));
+			});
+		}
 	}
 
 	preload() {
@@ -129,9 +138,9 @@ export default class GameScene extends Phaser.Scene {
 
 		this.nextTurn();
 
-		const player = this.getPlayerForThisTurn();
+		this.player = this.getPlayerForThisTurn();
 
-		player.customData.remainingBallCount--;
+		this.player.customData.remainingBallCount--;
 
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
@@ -148,7 +157,7 @@ export default class GameScene extends Phaser.Scene {
 
 		this.resetCameraToCurrentBall();
 
-		if (player.isComputer()) {
+		if (this.player.isComputer()) {
 
 			setTimeout(() => {
 				this.shootBall(200, 700);
@@ -192,9 +201,9 @@ export default class GameScene extends Phaser.Scene {
 
 	addBall() {
 
-		const player = this.getPlayerForThisTurn();
+		this.player = this.getPlayerForThisTurn();
 
-		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, player.customData.ball);
+		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, this.player.customData.ball);
 
 		this.currentBall.setCircle();
 		this.currentBall.setFriction(GAME_BALL_FRICTION);
@@ -205,26 +214,21 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.x = this.game.config.width / 2;
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
-		if (player.isHuman()) {
+		if (this.player.isHuman()) {
+
+			if (!this.isThisMyTurn()) {
+				socket.removeAllListeners();
+				socket.on('pointerdown', this.addTargeting.bind(this));
+				socket.on('drag', data => { this.onDragBall(data); });
+				socket.on('dragend', data => { this.onDragEndBall(data); });
+				return;
+			}
 
 			this.currentBall.setInteractive({ draggable : true })
 
-			this.currentBall.on('pointerdown', () => {
-				this.addTargeting();
-			});
-
-			this.currentBall.on('drag', (event, x, y) => {
-				this.currentBall.setVelocity(0);
-				this.cochonnet.setVelocity(0);
-				this.drawVelocityIndicator(x, y)
-			});
-
-			this.currentBall.on('dragend', event => {
-				this.currentBall.setVelocity(0);
-				this.cochonnet.setVelocity(0);
-				this.shootBall(event.upX, event.upY);
-				this.destroyVelocityIndicator();
-			});
+			this.currentBall.on('pointerdown', this.addTargeting.bind(this));
+			this.currentBall.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
+			this.currentBall.on('dragend', (event) => { this.onDragEndBall(event); });
 		}
 
 		this.balls.push(this.currentBall);
@@ -241,22 +245,6 @@ export default class GameScene extends Phaser.Scene {
 		this.cochonnet.setBounce(.2);
 		this.cochonnet.setFriction(.015);
 		this.cochonnet.setInteractive({ draggable : true });
-	}
-
-	addTargeting() {
-
-		if (this.targetingModeIsEnabled) {
-			return;
-		}
-
-		this.targetingModeIsEnabled = true;
-		this.cameraIsEnabled = false;
-
-		// Draw arrow
-		this.arrow = this.add.tileSprite(this.currentBall.x, this.currentBall.y-32, GAME_BALL_WIDTH, GAME_BALL_WIDTH, 'arrow');
-
-		// Draw velocity indicator
-		this.drawVelocityIndicator(this.currentBall.y);
 	}
 
 	drawVelocityIndicator(x, y) {
@@ -341,5 +329,91 @@ export default class GameScene extends Phaser.Scene {
 
 	getCamera() {
 		return this.cameras.main;
+	}
+
+	addTargeting() {
+
+		if (this.targetingModeIsEnabled) {
+			return;
+		}
+
+		this.targetingModeIsEnabled = true;
+
+		if (this.isThisMyTurn()) {
+			this.cameraIsEnabled = false;
+		}
+
+		// Draw arrow
+		this.arrow = this.add.tileSprite(this.currentBall.x, this.currentBall.y-32, GAME_BALL_WIDTH, GAME_BALL_WIDTH, 'arrow');
+
+		// Draw velocity indicator
+		this.drawVelocityIndicator(this.currentBall.y);
+
+		if (this.isMultiplayer()) {
+			socket.emit('data', {
+				eventType : 'pointerdown',
+				id        : this.id,
+		roomName  : this.room
+			});
+		}
+	}
+
+	onDragBall({x, y}) {
+
+		this.currentBall.setVelocity(0);
+		this.cochonnet.setVelocity(0);
+		this.drawVelocityIndicator(x, y);
+
+		if (this.isMultiplayer()) {
+			socket.emit('data', {
+				eventType : 'drag',
+				id        : this.id,
+		roomName  : this.room,
+				data : {
+					x : x,
+					y : y
+				}
+			});
+		}
+	}
+
+	onDragEndBall({ upX, upY }) {
+
+		this.currentBall.setVelocity(0);
+		this.cochonnet.setVelocity(0);
+		this.shootBall(upX, upY);
+		this.destroyVelocityIndicator();
+
+		if (this.isMultiplayer()) {
+			socket.emit('data', {
+				eventType : 'dragend',
+				id        : this.id,
+		roomName  : this.room,
+				data : {
+					upX : upX,
+					upY : upY
+				}
+			});
+		}
+	}
+
+	isThisMyTurn() {
+
+		if (this.isOneplayer() && this.player.isHuman()) {
+			return true;
+		}
+		else if (this.isMultiplayer() && this.player.id === this.id) {
+			return true;
+		}
+
+		return false;
+	}
+
+	isMultiplayer() {
+		return this.isMultiplayerMode;
+	}
+
+	isOneplayer() {
+		return !this.isMultiplayerMode;
 	}
 }
