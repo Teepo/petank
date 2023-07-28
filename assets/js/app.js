@@ -6,7 +6,12 @@ import HomeScene from './scenes/home.js';
 import NewPlayer from './scenes/newPlayer.js';
 import WaitingRoom from './scenes/waitingRoom.js';
 import OnePlayerScene from './scenes/onePlayer.js';
+import MultiPlayerScene from './scenes/multiPlayer.js';
 import TrainingScene from './scenes/training.js';
+
+Map.prototype.toArray = function() {
+    return Array.from(this.values());
+};
 
 const config = {
 	type: Phaser.AUTO,
@@ -34,7 +39,7 @@ const config = {
 			mapping: 'rexGestures'
 		}]
 	},
-	scene: [HomeScene, WaitingRoom, OnePlayerScene, NewPlayer, TrainingScene]
+	scene: [HomeScene, WaitingRoom, OnePlayerScene, MultiPlayerScene, NewPlayer, TrainingScene]
 };
 
 new Phaser.Game(config);

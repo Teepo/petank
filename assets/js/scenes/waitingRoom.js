@@ -21,6 +21,7 @@ import {
 } from '../modules/player.js';
 
 import PlayerList from '../components/PlayerList.vue';
+import { mergeObjectsWithPrototypes } from '../utils/object';
 
 export default class WaitingRoom extends Phaser.Scene {
 
@@ -99,18 +100,16 @@ export default class WaitingRoom extends Phaser.Scene {
                 ball : 'beach-ball.png',
             });
 
-            player.customData = customPlayer.customData;
+            this.player = mergeObjectsWithPrototypes(customPlayer, player);
+            this.player.customData = customPlayer.customData;
 
-            this.player = player;
-
-            socket.emit('addPlayerCustomData', {
-                player     : this.player,
-                roomName   : this.room,
-                customData : player.customData
+            socket.emit('updatePlayer', {
+                player   : this.player,
+                roomName : this.room
             });
 		});
 
-        socket.on('addedPlayerCustomData', () => {
+        socket.on('updatedPlayer', () => {
 
             socket.removeAllListeners();
 

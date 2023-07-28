@@ -1,14 +1,14 @@
 <template>
     <v-container class="mt-16">
-        <v-container v-for="(player, index) in players" :key="player.id">
-            <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'">
+        <v-container v-for="(player, index) in players.toArray()" :key="index">
+            <v-card :theme="player.isReady ? 'is-ready' : 'is-not-ready'" >
                 <v-card-item>
                     <v-card-text>
-                        <v-row class="align-center" no-gutters>
+                        <v-row class="align-center">
 
                             <v-col cols="8">
                                 <v-row class="align-center">
-                                    <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-5" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
+                                    <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-4" :width="GAME_BALL_WIDTH" @click="showOverlayBall(player)">
                                     <strong class="font-weight-bold">
                                         {{ player.login }}
                                     </strong>
@@ -37,7 +37,8 @@
             </v-card>
 
             <v-dialog
-                v-model="player.shouldDisplayOverlayBalls"
+                v-if="this.isOneplayer() || (this.isMultiplayer() && player.id == this.id)"
+                v-model="this.shouldDisplayOverlayBalls[player.id]"
                 contained
                 class="align-center justify-center"
             >
@@ -86,12 +87,12 @@ export default {
 
         return {
             player       : this.$props._player,
-            players      : this.$props._players ?? [],
+            players      : this.$props._players ?? new Map,
             mode         : this.$props._mode,
             sceneManager : this.$props._sceneManager,
             ballsImages  : [],
 
-            shouldDisplayOverlayBalls : false,
+            shouldDisplayOverlayBalls : [],
         }
     },
 
@@ -122,18 +123,26 @@ export default {
             this.id   = sessionStorage.getItem('id');
             this.room = sessionStorage.getItem('room');
 
+            socket.emit('getAllPlayersFromRoom', {
+                roomName : this.room
+            });
+
             socket.on('start', () => {
                 socket.removeAllListeners();
                 document.querySelector('.player-list').innerHTML = '';
                 this.sceneManager.stop('waitingRoom');
-                this.sceneManager.start('game');
+                this.sceneManager.start('multiPlayer', {
+                    players : this.players
+                });
             });
 
-            socket.emit('getAllPlayersFromRoom', {
-                roomName : this.room
-            });
             socket.on('getAllPlayersFromRoom', data => {
                 this.handleGetAllPlayersFromRoom(data);
+            });
+
+            socket.on('updatedPlayer', data => {
+                const { player } = data;
+                this.players.set(player.id, player);
             });
 
             socket.on('joinedRoom', data => {
@@ -144,27 +153,12 @@ export default {
 
                 const { player } = data;
 
-                this.players.find(p => p.id == player.id).isReady = player.isReady;
-            });
-
-            socket.on('addedPlayerCustomData', data => {
-
-                const { player } = data;
-
-                this.players.find(p => p.id == player.id).customData = player.customData;
+                this.players.get(player.id).isReady = player.isReady;
             });
 
             socket.on('leavedRoom', data => {
-
                 const { id } = data;
-
-                const index = this.players.findIndex(p => p.id == id);
-
-                if (index === -1) {
-                    return;
-                }
-
-                this.players.splice(index, 1);
+                this.players.delete(id);
             });
 
             socket.on('deletedPlayer', data => {
@@ -177,13 +171,7 @@ export default {
                     return this.back();
                 }
 
-                const index = this.players.findIndex(p => p.id == id);
-
-                if (index === -1) {
-                    return;
-                }
-
-                this.players.splice(index, 1);
+                this.players.delete(id);
             });
         },
 
@@ -220,13 +208,17 @@ export default {
         },
 
 		handleGetAllPlayersFromRoom(data) {
-			const { players } = data;
-			this.players = players;
+
+            const { players } = data;
+
+            players.map(player => {
+                this.players.set(player.id, player);
+            });
 		},
 
         handleJoinedRoom(data) {
 			const { player } = data;
-			this.players.push(player);
+			this.players.set(player.id, player);
         },
 
         setPlayerReadyHandler() {
@@ -245,7 +237,7 @@ export default {
                 return;
             }
 
-            player.shouldDisplayOverlayBalls = true;
+            this.shouldDisplayOverlayBalls[player.id] = true;
         },
 
         selectBallImage(player, ballName) {
@@ -257,14 +249,13 @@ export default {
             }
 
             if (this.isMultiplayer()) {
-                socket.emit('addPlayerCustomData', {
-                    roomName   : this.room,
-                    player     : player,
-                    customData : player.customData
+                socket.emit('updatePlayer', {
+                    roomName : this.room,
+                    player   : player
                 });
             }
 
-            player.shouldDisplayOverlayBalls = false;
+            this.shouldDisplayOverlayBalls[player.id] = false;
         },
 
         isMultiplayer() {
@@ -319,6 +310,15 @@ export default {
 
         &-item {
             height: 60px;
+
+            .v-checkbox-btn {
+
+                flex: initial;
+
+                .v-label {
+                    white-space: nowrap;
+                }
+            }
         }
 
         &.v-theme {
