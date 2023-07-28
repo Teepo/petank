@@ -12,6 +12,8 @@ import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
 import { showAlert } from './../modules/alert.js'
+import { mergeObjectsWithPrototypes } from '../utils/object';
+import { HUMAN_TYPE, Player } from '../modules/player';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -32,8 +34,17 @@ export default class GameScene extends Phaser.Scene {
     }
 
 	init({ players = [], isTrainingMode = false }) {
+
 		this.players        = players;
 		this.isTrainingMode = isTrainingMode;
+
+		this.players.toArray().map(player => {
+
+			this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
+                type : HUMAN_TYPE,
+                ball : player.customData.ball
+            }), player));
+		});
 	}
 
 	preload() {
@@ -79,7 +90,7 @@ export default class GameScene extends Phaser.Scene {
 
 	loadPlayersBall() {
 
-		this.players.map(async player => {
+		this.players.toArray().map(async player => {
 			this.load.image(player.customData.ball, (await import(`./../../img/balls/${player.customData.ball}`)).default);
 		});
 	}
@@ -112,7 +123,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	checkIfAllPlayersHaveShootedTheirBalls() {
-		return this.players.filter(player => player.customData.remainingBallCount <= 0).length === this.players.length;
+		return this.players.toArray().filter(player => player.customData.remainingBallCount <= 0).length === this.players.size;
 	}
 
 	theEndOfBallShoot() {
@@ -147,8 +158,8 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	getPlayerForThisTurn() {
-		const index = this.turnCount % this.players.length;
-		return this.players[index];
+		const index = this.turnCount % this.players.size;
+		return this.players.toArray()[index];
 	}
 
 	resetCameraToCurrentBall() {

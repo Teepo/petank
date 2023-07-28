@@ -55,21 +55,26 @@ export default class HomeScene extends Phaser.Scene {
             .setTint(0x1da1f2)
         ;
 
+        const onePlayerMap = new Map;
+        [new Player({
+            type  : HUMAN_TYPE,
+            login : 'Player',
+            ball  : 'earth.svg'
+        }), new Player({
+            type  : COMPUTER_TYPE,
+            login : 'Computer',
+            ball  : 'sleep.svg'
+        })].map(player => {
+            onePlayerMap.set(player.login, player)
+        });
+
         this.onePlayerButton.on('pointerdown', this.setButtonActiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
         this.onePlayerButton.on('pointerout', this.setButtonDisactiveState.bind(this, this.onePlayerButton, this.onePlayerButtonText));
         this.onePlayerButton.on('pointerup', () => {
             this.scene.stop('home');
             this.scene.start('waitingRoom', {
                 mode : WAITING_ONEPLAYER_MODE,
-                players : [new Player({
-                    type  : HUMAN_TYPE,
-                    login : 'Player',
-                    ball  : 'earth.svg'
-                }), new Player({
-                    type  : COMPUTER_TYPE,
-                    login : 'Computer',
-                    ball  : 'sleep.svg'
-                })]
+                players : onePlayerMap
             });
         });
 
@@ -117,13 +122,13 @@ export default class HomeScene extends Phaser.Scene {
         this.trainingButton.on('pointerup', () => {
             this.scene.stop('home');
             this.scene.start('waitingRoom', {
-                mode : WAITING_ONEPLAYER_MODE,
-                players : [new Player({
+                mode    : WAITING_ONEPLAYER_MODE,
+                players : (new Map).set('Player', new Player({
                     type  : HUMAN_TYPE,
                     login : 'Player',
                     ball  : 'earth.svg',
                     remainingBallCount : Infinity
-                })]
+                }))
             });
         });
     }

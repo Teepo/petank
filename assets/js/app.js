@@ -7,7 +7,6 @@ import NewPlayer from './scenes/newPlayer.js';
 import WaitingRoom from './scenes/waitingRoom.js';
 import OnePlayerScene from './scenes/onePlayer.js';
 import MultiPlayerScene from './scenes/multiPlayer.js';
-import TrainingScene from './scenes/training.js';
 
 Map.prototype.toArray = function() {
     return Array.from(this.values());
@@ -39,7 +38,7 @@ const config = {
 			mapping: 'rexGestures'
 		}]
 	},
-	scene: [HomeScene, WaitingRoom, OnePlayerScene, MultiPlayerScene, NewPlayer, TrainingScene]
+	scene: [HomeScene, WaitingRoom, OnePlayerScene, MultiPlayerScene, NewPlayer]
 };
 
 new Phaser.Game(config);

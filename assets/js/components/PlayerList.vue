@@ -182,7 +182,7 @@ export default {
                 players : this.players
             });
 
-            document.querySelector('.player-list').innerHTML = '';
+            document.querySelector('.player-list').remove();
         },
 
         back() {
