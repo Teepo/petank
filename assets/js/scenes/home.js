@@ -58,10 +58,12 @@ export default class HomeScene extends Phaser.Scene {
         const onePlayerMap = new Map;
         [new Player({
             type  : HUMAN_TYPE,
+            id    : 'Player',
             login : 'Player',
             ball  : 'earth.svg'
         }), new Player({
             type  : COMPUTER_TYPE,
+            id    : 'Computer',
             login : 'Computer',
             ball  : 'sleep.svg'
         })].map(player => {
@@ -125,6 +127,7 @@ export default class HomeScene extends Phaser.Scene {
                 mode    : WAITING_ONEPLAYER_MODE,
                 players : (new Map).set('Player', new Player({
                     type  : HUMAN_TYPE,
+                    id    : 'Player',
                     login : 'Player',
                     ball  : 'earth.svg',
                     remainingBallCount : Infinity

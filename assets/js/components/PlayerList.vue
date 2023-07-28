@@ -234,7 +234,7 @@ export default {
 
         showOverlayBall(player) {
 
-            if (this.id !== player.id) {
+            if (this.isMultiplayer() && this.id !== player.id) {
                 return;
             }
 
