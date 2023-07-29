@@ -11,12 +11,12 @@ import arrow from './../../img/arrow.png';
 import center from './../../img/center.png';
 import backgroundSand from './../../img/background-sand.jpg';
 
-import { showAlert } from './../modules/alert.js'
-import { mergeObjectsWithPrototypes } from '../utils/object';
+import { mergeObjectsWithPrototypes } from './../utils/object';
+
+import { Alert } from '../modules/alert';
 import { HUMAN_TYPE, Player } from '../modules/player';
 
 import { socket } from './../modules/ws.js';
-import { wsErrorHandler } from '../modules/wsErrorHandler.js';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -136,6 +136,10 @@ export default class GameScene extends Phaser.Scene {
 
 	theEndOfBallShoot() {
 
+		const distance = this.getDistanceBetweenBallAndCochonnet();
+
+		Alert.add({ str : `${this.player.login} => ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
+
 		this.nextTurn();
 
 		this.player = this.getPlayerForThisTurn();
@@ -149,10 +153,6 @@ export default class GameScene extends Phaser.Scene {
 			ball.setVelocity(0);
 		});
 
-		const distance = this.getDistanceBetweenBallAndCochonnet();
-
-		showAlert(this.getPixelDistanceToHumanDistance(distance));
-
 		this.addBall();
 
 		this.resetCameraToCurrentBall();
@@ -160,7 +160,7 @@ export default class GameScene extends Phaser.Scene {
 		if (this.player.isComputer()) {
 
 			setTimeout(() => {
-				this.shootBall(200, 700);
+				this.shootBall(200, 500);
 			}, 2000);
 		}
 	}
@@ -199,7 +199,7 @@ export default class GameScene extends Phaser.Scene {
 		return `${value.toFixed(2)}${metric}`;
 	}
 
-	addBall() {
+	async addBall() {
 
 		this.player = this.getPlayerForThisTurn();
 
@@ -214,9 +214,15 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.x = this.game.config.width / 2;
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
+		setTimeout(() => {
+			Alert.add({ str : `${this.player.login} turn`, player : this.player })
+		}, 2000);
+
+
 		if (this.player.isHuman()) {
 
 			if (!this.isThisMyTurn()) {
+
 				socket.removeAllListeners();
 				socket.on('pointerdown', this.addTargeting.bind(this));
 				socket.on('drag', data => { this.onDragBall(data); });

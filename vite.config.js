@@ -1,3 +1,5 @@
+import path from 'path';
+
 import { defineConfig } from 'vite';
 
 import vue      from '@vitejs/plugin-vue'
@@ -17,6 +19,9 @@ export default defineConfig({
         }),
     ],
     resolve: {
+        alias: {
+            '~noty': path.resolve(__dirname, 'node_modules/noty'),
+        },
         extensions: [
             '.js',
             '.json',
@@ -25,6 +30,7 @@ export default defineConfig({
             '.ts',
             '.tsx',
             '.vue',
+            '.scss',
         ],
     },
 });
