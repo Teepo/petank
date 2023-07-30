@@ -199,10 +199,7 @@ export default class GameScene extends Phaser.Scene {
 
 		this.scene.pause();
 
-		const playerWinner = this.playersBalls.map( ({ player, ball }) => {
-			return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
-		})
-		.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
+		const playerWinner = this.getWinnerPlayerOfTurn();
 
 		playerWinner.customData.score++;
 
@@ -233,6 +230,14 @@ export default class GameScene extends Phaser.Scene {
 	getPlayerForThisTurn() {
 		const index = this.turnCount % this.players.size;
 		return this.players.toArray()[index];
+	}
+
+	getWinnerPlayerOfTurn() {
+
+		return this.playersBalls.map( ({ player, ball }) => {
+			return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
+		})
+		.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
 	}
 
 	resetCameraToCurrentBall() {
