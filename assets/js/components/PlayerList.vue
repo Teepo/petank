@@ -102,7 +102,7 @@ export default {
 
         const ballsFiles = import.meta.glob('./../../img/balls/*');
         for (const path in ballsFiles) {
-            images.push((await ballsFiles[path]()).default);
+            images.push(`./assets/img/balls/${this.getFileNameAndExtension(path)}`);
         }
 
         this.ballsImages = images;

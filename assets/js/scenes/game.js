@@ -7,10 +7,6 @@ import {
 	GAME_BALL_WIDTH
 } from '../config';
 
-import arrow from './../../img/arrow.png';
-import center from './../../img/center.png';
-import backgroundSand from './../../img/background-sand.jpg';
-
 import { mergeObjectsWithPrototypes } from './../utils/object';
 
 import { Alert } from '../modules/alert';
@@ -59,8 +55,8 @@ export default class GameScene extends Phaser.Scene {
 
 	preload() {
 
-		this.load.image('arrow', arrow);
-		this.load.image('background-sand', backgroundSand);
+		this.load.image('arrow', './assets/img/arrow.png');
+		this.load.image('background-sand', './assets/img/background-sand.jpg');
 
 		this.loadPlayersBall();
 	}
@@ -102,7 +98,7 @@ export default class GameScene extends Phaser.Scene {
 	loadPlayersBall() {
 
 		this.players.toArray().map(async player => {
-			this.load.image(player.customData.ball, `./../../../assets/img/balls/${player.customData.ball}`);
+			this.load.image(player.customData.ball, `./assets/img/balls/${player.customData.ball}`);
 		});
 	}
 
@@ -110,7 +106,7 @@ export default class GameScene extends Phaser.Scene {
 
 		document.body.insertAdjacentHTML('beforeEnd', `
 			<button class="button button-center-camera-to-current-ball">
-				<img src="${center}" class="u-icon">
+				<img src="./assets/img/center.png" class="u-icon">
 			</button>`)
 
 		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
