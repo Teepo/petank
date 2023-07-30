@@ -1,5 +1,9 @@
 import Phaser from 'phaser';
 
+import { createApp } from 'vue';
+
+import { vuetify } from '../plugins/vuetify';
+
 import {
 	GAME_BALL_BOUNCE,
 	GAME_BALL_FRICTION,
@@ -13,6 +17,8 @@ import { Alert } from '../modules/alert';
 import { HUMAN_TYPE, Player } from '../modules/player';
 
 import { socket } from './../modules/ws.js';
+
+import OverlayScore from '../components/OverlayScore.vue';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -79,7 +85,30 @@ export default class GameScene extends Phaser.Scene {
 	update() {
 
 		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
+
 			console.log('the end');
+
+			this.scene.pause();
+
+			if (this.isMultiplayer()) {
+
+				socket.emit('data', {
+					eventType : 'end',
+					roomName  : this.room
+				});
+
+				socket.emit('stop', {
+					roomName : this.room
+				});
+			}
+
+			createApp(OverlayScore, {
+                _players      : this.players.toArray(),
+                _sceneManager : this.scene
+            })
+            .use(vuetify)
+            .mount('.overlay-score');
+
 			return;
 		}
 

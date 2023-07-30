@@ -46,7 +46,7 @@
                     <v-card-item>
                         <v-card-text>
                             <template v-for="image in this.ballsImages">
-                                <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage(player, this.getFileNameAndExtension(image))">
+                                <img :src="image" :width="GAME_BALL_WIDTH" @click="selectBallImage(player, getFileNameAndExtension(image))">
                             </template>
                         </v-card-text>
                     </v-card-item>
@@ -72,6 +72,8 @@ import {
     WAITING_ONEPLAYER_MODE,
     GAME_BALL_WIDTH
 } from '../config';
+
+import { getFileNameAndExtension } from './../utils/string';
 
 import { socket } from './../modules/ws.js';
 
@@ -102,7 +104,7 @@ export default {
 
         const ballsFiles = import.meta.glob('./../../img/balls/*');
         for (const path in ballsFiles) {
-            images.push(`./assets/img/balls/${this.getFileNameAndExtension(path)}`);
+            images.push(`./assets/img/balls/${getFileNameAndExtension(path)}`);
         }
 
         this.ballsImages = images;
@@ -116,6 +118,7 @@ export default {
             this.initMultiplayerMode();
         }
     },
+
     methods : {
 
         initMultiplayerMode() {
@@ -265,19 +268,6 @@ export default {
 
         isOneplayer() {
             return this.mode === WAITING_ONEPLAYER_MODE;
-        },
-
-        getFileNameAndExtension(path) {
-
-            const segments = path.split('/');
-
-            const fileNameWithExtension = segments[segments.length - 1];
-
-            const fileNameSegments = fileNameWithExtension.split('.');
-            const fileName = fileNameSegments[0];
-            const fileExtension = fileNameSegments.length > 1 ? fileNameSegments[1] : '';
-
-            return `${fileName}.${fileExtension}`;
         }
     }
 }
