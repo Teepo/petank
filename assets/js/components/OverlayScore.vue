@@ -20,7 +20,7 @@
 
                 <template v-slot:append>
                     <v-list-item-title class="font-weight-bold">
-                        {{ player.score ?? 0 }} Pts
+                        {{ player.customData.score }} Pts
                     </v-list-item-title>
                 </template>
             </v-list-item>

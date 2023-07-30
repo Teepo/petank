@@ -28,7 +28,7 @@ export default class GameScene extends Phaser.Scene {
 
 	currentLineTarget;
 
-	balls = [];
+	playersBalls = [];
 	currentBall;
 
 	turnCount = 0;
@@ -45,17 +45,8 @@ export default class GameScene extends Phaser.Scene {
 		this.players           = players;
 		this.isMultiplayerMode = isMultiplayerMode;
 
-		if (this.isMultiplayerMode) {
-
-			this.id   = sessionStorage.getItem('id');
-			this.room = sessionStorage.getItem('room');
-
-			this.players.toArray().map(player => {
-				this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
-					type : HUMAN_TYPE,
-					ball : player.customData.ball
-				}), player));
-			});
+		if (this.isMultiplayer()) {
+			this.initMultiplayerMode();
 		}
 	}
 
@@ -82,6 +73,24 @@ export default class GameScene extends Phaser.Scene {
 		this.resetCameraToCurrentBall();
 	}
 
+	initMultiplayerMode() {
+
+		this.id   = sessionStorage.getItem('id');
+		this.room = sessionStorage.getItem('room');
+
+		this.players.toArray().map(player => {
+			this.players.set(player.id, mergeObjectsWithPrototypes(new Player({
+				type : HUMAN_TYPE,
+				ball : player.customData.ball
+			}), player));
+		});
+
+		socket.on('updatedPlayer', data => {
+			const { player } = data;
+			this.players.set(player.id, player);
+		});
+	}
+
 	update() {
 
 		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
@@ -90,12 +99,19 @@ export default class GameScene extends Phaser.Scene {
 
 			this.scene.pause();
 
+			const playerWinner = this.playersBalls.map( ({ player, ball }) => {
+				return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
+			})
+			.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
+
+			playerWinner.customData.score++;
+
 			if (this.isMultiplayer()) {
 
-				socket.emit('data', {
-					eventType : 'end',
-					roomName  : this.room
-				});
+				socket.emit('updatePlayer', {
+                    roomName : this.room,
+                    player   : playerWinner
+                });
 
 				socket.emit('stop', {
 					roomName : this.room
@@ -180,7 +196,7 @@ export default class GameScene extends Phaser.Scene {
 			return;
 		}
 
-		const distance = this.getDistanceBetweenBallAndCochonnet();
+		const distance = this.getDistanceBetweenBallAndCochonnet(this.currentBall);
 
 		Alert.add({ str : `${this.player.login} => ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
 
@@ -193,7 +209,7 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
 
-		this.balls.map(ball => {
+		this.playersBalls.map(({ ball }) => {
 			ball.setVelocity(0);
 		});
 
@@ -219,8 +235,8 @@ export default class GameScene extends Phaser.Scene {
 		this.getCamera().stopFollow();
 	}
 
-	getDistanceBetweenBallAndCochonnet() {
-		return Phaser.Math.Distance.Between(this.currentBall.x, this.currentBall.y, this.cochonnet.x, this.cochonnet.y) - (GAME_BALL_WIDTH / 2);
+	getDistanceBetweenBallAndCochonnet(ball) {
+		return Phaser.Math.Distance.Between(ball.x, ball.y, this.cochonnet.x, this.cochonnet.y) - (GAME_BALL_WIDTH / 2);
 	}
 
 	getPixelDistanceToHumanDistance(px) {
@@ -280,7 +296,10 @@ export default class GameScene extends Phaser.Scene {
 			this.currentBall.on('dragend', (event) => { this.onDragEndBall(event); });
 		}
 
-		this.balls.push(this.currentBall);
+		this.playersBalls.push({
+			player : this.player,
+			ball   : this.currentBall
+		});
 	}
 
 	addCochonnet() {
