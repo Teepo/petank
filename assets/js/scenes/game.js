@@ -94,37 +94,7 @@ export default class GameScene extends Phaser.Scene {
 	update() {
 
 		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
-
-			console.log('the end');
-
-			this.scene.pause();
-
-			const playerWinner = this.playersBalls.map( ({ player, ball }) => {
-				return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
-			})
-			.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
-
-			playerWinner.customData.score++;
-
-			if (this.isMultiplayer()) {
-
-				socket.emit('updatePlayer', {
-                    roomName : this.room,
-                    player   : playerWinner
-                });
-
-				socket.emit('stop', {
-					roomName : this.room
-				});
-			}
-
-			createApp(OverlayScore, {
-                _players      : this.players.toArray(),
-                _sceneManager : this.scene
-            })
-            .use(vuetify)
-            .mount('.overlay-score');
-
+			this.theEndOfTurn();
 			return;
 		}
 
@@ -223,6 +193,41 @@ export default class GameScene extends Phaser.Scene {
 				this.shootBall(200, 500);
 			}, 2000);
 		}
+	}
+
+	theEndOfTurn() {
+
+		this.scene.pause();
+
+		const playerWinner = this.playersBalls.map( ({ player, ball }) => {
+			return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
+		})
+		.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
+
+		playerWinner.customData.score++;
+
+		if (this.isMultiplayer()) {
+			this.theEndOfTurnMultiplayer();
+		}
+
+		createApp(OverlayScore, {
+			_players      : this.players.toArray(),
+			_sceneManager : this.scene
+		})
+		.use(vuetify)
+		.mount('.overlay-score');
+	}
+
+	theEndOfTurnMultiplayer() {
+
+		socket.emit('updatePlayer', {
+			roomName : this.room,
+			player   : playerWinner
+		});
+
+		socket.emit('stop', {
+			roomName : this.room
+		});
 	}
 
 	getPlayerForThisTurn() {
