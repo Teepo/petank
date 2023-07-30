@@ -209,7 +209,15 @@ export default class GameScene extends Phaser.Scene {
 		this.resetPlayersRemainingBall();
 
 		if (this.isMultiplayer()) {
-			this.theEndOfTurnMultiplayer();
+
+			socket.emit('updatePlayer', {
+				roomName : this.room,
+				player   : playerWinner
+			});
+
+			socket.emit('stop', {
+				roomName : this.room
+			});
 		}
 
 		this.showOverlayScore();
@@ -266,18 +274,6 @@ export default class GameScene extends Phaser.Scene {
 
 	removeOverlayScore() {
 		document.querySelector('.overlay-score')?.remove();
-	}
-
-	theEndOfTurnMultiplayer() {
-
-		socket.emit('updatePlayer', {
-			roomName : this.room,
-			player   : playerWinner
-		});
-
-		socket.emit('stop', {
-			roomName : this.room
-		});
 	}
 
 	resetPlayersRemainingBall() {
