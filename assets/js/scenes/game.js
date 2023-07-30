@@ -230,7 +230,7 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
 		setTimeout(() => {
-			Alert.add({ str : `${this.player.login} turn`, player : this.player })
+			Alert.add({ str : `${this.player.login} turn ${this.getTurnCount()}`, player : this.player })
 		}, 2000);
 
 		if (this.player.isHuman()) {
@@ -427,6 +427,10 @@ export default class GameScene extends Phaser.Scene {
 				}
 			});
 		}
+	}
+
+	getTurnCount() {
+		return this.player.customData.remainingBallCount % (this.turnCount+1) + 1;
 	}
 
 	isThisMyTurn() {
