@@ -331,6 +331,10 @@ export default class GameScene extends Phaser.Scene {
 
 	addBall() {
 
+		if (this.isMultiplayer()) {
+			socket.removeAllListeners();
+		}
+
 		this.player = this.getPlayerForThisTurn();
 
 		this.currentBall = this.matter.add.image(GAME_BALL_WIDTH, GAME_BALL_WIDTH, this.player.customData.ball);
@@ -352,7 +356,6 @@ export default class GameScene extends Phaser.Scene {
 
 			if (!this.isThisMyTurn()) {
 
-				socket.removeAllListeners();
 				socket.on('pointerdown', this.addTargeting.bind(this));
 				socket.on('drag', data => { this.onDragBall(data); });
 				socket.on('dragend', data => { this.onDragEndBall(data); });
@@ -374,8 +377,12 @@ export default class GameScene extends Phaser.Scene {
 
 	addCochonnet() {
 
+		if (this.isMultiplayer()) {
+			socket.removeAllListeners();
+		}
+
 		const circle = this.add.circle(window.innerWidth / 2, 200, 10, 0xff0000);
-		const body = this.matter.add.circle(window.innerWidth / 2, 200, 10)
+		const body   = this.matter.add.circle(window.innerWidth / 2, 200, 10)
 
 		this.cochonnet = this.matter.add.gameObject(circle, body);
 
@@ -388,11 +395,20 @@ export default class GameScene extends Phaser.Scene {
 		this.cochonnet.setFriction(GAME_BALL_FRICTION);
 		this.cochonnet.setFrictionAir(GAME_BALL_FRICTION_AIR);
 		this.cochonnet.setBounce(GAME_BALL_BOUNCE);
-		this.cochonnet.setInteractive({ draggable : true });
 
-		this.cochonnet.on('pointerdown', this.addTargeting.bind(this));
-		this.cochonnet.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
-		this.cochonnet.on('dragend', (event) => { this.onDragEndBall(event); });
+		if (this.isThisMyTurn()) {
+
+			this.cochonnet.setInteractive({ draggable : true });
+
+			this.cochonnet.on('pointerdown', this.addTargeting.bind(this));
+			this.cochonnet.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
+			this.cochonnet.on('dragend', (event) => { this.onDragEndBall(event); });
+		}
+		else {
+			socket.on('pointerdown', this.addTargeting.bind(this));
+			socket.on('drag', data => { this.onDragBall(data); });
+			socket.on('dragend', data => { this.onDragEndBall(data); });
+		}
 
 		this.currentBall = this.cochonnet;
 
