@@ -32,6 +32,8 @@ export default class GameScene extends Phaser.Scene {
 	turnCount = 0;
 	players = [];
 
+	isCochonetMode = true;
+
     constructor(sceneName) {
 		super(sceneName);
     }
@@ -65,13 +67,14 @@ export default class GameScene extends Phaser.Scene {
 
 	create() {
 
+		this.player = this.getPlayerForThisTurn();
+
 		this.matter.world.setBounds(0, 0, this.game.config.width, this.game.config.height * 2);
 		this.matter.world.disableGravity();
 		this.getCamera().setBounds(0, 0, this.game.config.width, this.game.config.height * 2);
 
 		this.updateBackground();
 		this.drawButtonCenterCameraToCurrentBall();
-		this.addBall();
 		this.addCochonnet();
 		this.initPinchZoom();
 		this.resetCameraToCurrentBall();
@@ -136,6 +139,22 @@ export default class GameScene extends Phaser.Scene {
 
 	theEndOfBallShoot() {
 
+		if (this.isCochonetMode) {
+
+			this.isCochonetMode = false;
+
+			this.ballIsInMovement = false;
+
+			this.currentBall.disableInteractive();
+			this.currentBall.setVelocity(0);
+
+			this.addBall();
+
+			this.resetCameraToCurrentBall();
+
+			return;
+		}
+
 		const distance = this.getDistanceBetweenBallAndCochonnet();
 
 		Alert.add({ str : `${this.player.login} => ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
@@ -199,7 +218,7 @@ export default class GameScene extends Phaser.Scene {
 		return `${value.toFixed(2)}${metric}`;
 	}
 
-	async addBall() {
+	addBall() {
 
 		this.player = this.getPlayerForThisTurn();
 
@@ -217,7 +236,6 @@ export default class GameScene extends Phaser.Scene {
 		setTimeout(() => {
 			Alert.add({ str : `${this.player.login} turn`, player : this.player })
 		}, 2000);
-
 
 		if (this.player.isHuman()) {
 
@@ -245,12 +263,26 @@ export default class GameScene extends Phaser.Scene {
 		const circle = this.add.circle(window.innerWidth / 2, 200, 10, 0xff0000);
 		const body = this.matter.add.circle(window.innerWidth / 2, 200, 10)
 
-		this.cochonnet = this.matter.add.gameObject(circle, body)
+		this.cochonnet = this.matter.add.gameObject(circle, body);
+
+		this.cochonnet.x = this.game.config.width / 2;
+		this.cochonnet.y = this.game.config.height * 2 - 300;
+
+		this.getCamera().startFollow(this.cochonnet);
+		this.getCamera().stopFollow();
 
 		this.cochonnet.setFriction(0.005);
 		this.cochonnet.setBounce(.2);
 		this.cochonnet.setFriction(.015);
 		this.cochonnet.setInteractive({ draggable : true });
+
+		this.cochonnet.on('pointerdown', this.addTargeting.bind(this));
+		this.cochonnet.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
+		this.cochonnet.on('dragend', (event) => { this.onDragEndBall(event); });
+
+		this.currentBall = this.cochonnet;
+
+		Alert.add({ str : `${this.player.login} throws cochonet`, player : this.player })
 	}
 
 	drawVelocityIndicator(x, y) {
@@ -288,8 +320,6 @@ export default class GameScene extends Phaser.Scene {
 
 	shootBall(x, y) {
 
-		console.log(x, y)
-
 		const min = -10;
 		const max = 10;
 
@@ -311,7 +341,7 @@ export default class GameScene extends Phaser.Scene {
 
 		this.getCamera().startFollow(this.currentBall);
 
-		// @TODO make same linear scalke for angular velocity
+		// @TODO make same linear scale for angular velocity
 		this.currentBall.setAngularVelocity(vx < 0 ? -.05 : .05);
 		this.currentBall.setVelocity(vx, vy);
 
@@ -359,7 +389,7 @@ export default class GameScene extends Phaser.Scene {
 			socket.emit('data', {
 				eventType : 'pointerdown',
 				id        : this.id,
-		roomName  : this.room
+				roomName  : this.room
 			});
 		}
 	}
@@ -374,7 +404,7 @@ export default class GameScene extends Phaser.Scene {
 			socket.emit('data', {
 				eventType : 'drag',
 				id        : this.id,
-		roomName  : this.room,
+				roomName  : this.room,
 				data : {
 					x : x,
 					y : y
@@ -394,7 +424,7 @@ export default class GameScene extends Phaser.Scene {
 			socket.emit('data', {
 				eventType : 'dragend',
 				id        : this.id,
-		roomName  : this.room,
+				roomName  : this.room,
 				data : {
 					upX : upX,
 					upY : upY
