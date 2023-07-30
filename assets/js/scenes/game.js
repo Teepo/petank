@@ -102,7 +102,7 @@ export default class GameScene extends Phaser.Scene {
 	loadPlayersBall() {
 
 		this.players.toArray().map(async player => {
-			this.load.image(player.customData.ball, (await import(`./../../img/balls/${player.customData.ball}`)).default);
+			this.load.image(player.customData.ball, `./../../../assets/img/balls/${player.customData.ball}`);
 		});
 	}
 
