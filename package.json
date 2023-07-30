@@ -7,8 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "github-deploy": "yarn run build --env=gh:prod && gh-pages -d dist",
-    "firebase-deploy": "yarn run build && firebase deploy"
+    "img-dist": "cp -r assets/img/ dist/assets",
+    "github-deploy": "yarn run build --env=gh:prod && yarn run img-dist && gh-pages -d dist",
+    "firebase-deploy": "yarn run build && yarn run img-dist && firebase deploy"
   },
   "devDependencies": {
     "firebase": "^10.1.0",
