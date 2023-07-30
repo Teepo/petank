@@ -12,6 +12,7 @@ import {
 } from '../config';
 
 import { mergeObjectsWithPrototypes } from './../utils/object';
+import { sleep } from './../utils/timing';
 
 import { Alert } from '../modules/alert';
 import { HUMAN_TYPE, Player } from '../modules/player';
@@ -22,20 +23,6 @@ import OverlayScore from '../components/OverlayScore.vue';
 
 export default class GameScene extends Phaser.Scene {
 
-	targetingModeIsEnabled = false;
-	ballIsInMovement = false;
-	cameraIsEnabled = true;
-
-	currentLineTarget;
-
-	playersBalls = [];
-	currentBall;
-
-	turnCount = 0;
-	players = [];
-
-	isCochonetMode = true;
-
     constructor(sceneName) {
 		super(sceneName);
     }
@@ -44,6 +31,19 @@ export default class GameScene extends Phaser.Scene {
 
 		this.players           = players;
 		this.isMultiplayerMode = isMultiplayerMode;
+
+		this.targetingModeIsEnabled = false;
+		this.ballIsInMovement = false;
+		this.cameraIsEnabled = true;
+
+		this.currentLineTarget = null;
+
+		this.playersBalls = [];
+		this.currentBall= null;
+
+		this.turnCount = 0;
+
+		this.isCochonetMode = true;
 
 		if (this.isMultiplayer()) {
 			this.initMultiplayerMode();
@@ -203,9 +203,52 @@ export default class GameScene extends Phaser.Scene {
 
 		playerWinner.customData.score++;
 
+		this.resetPlayersRemainingBall();
+
 		if (this.isMultiplayer()) {
 			this.theEndOfTurnMultiplayer();
 		}
+
+		this.showOverlayScore();
+
+		this.nextRound();
+	}
+
+	async nextRound() {
+
+		if (this.isMultiplayer()) {
+			socket.removeAllListeners();
+		}
+
+		Alert.add({ str : `New round begin...` });
+
+		await sleep(5000);
+
+		this.removeOverlayScore();
+
+		let scene;
+
+		if (this.isOneplayer()) {
+			scene = 'onePlayer';
+		}
+		else if (this.isMultiplayer()) {
+			scene = 'multiPlayer';
+		}
+
+		this.scene.stop(scene);
+		this.scene.start(scene, {
+			players           : this.players,
+			isMultiplayerMode : this.isMultiplayer()
+		});
+	}
+
+	showOverlayScore() {
+
+		this.removeOverlayScore();
+
+		const node = document.createElement('div');
+		node.classList.add('overlay-score');
+		document.body.appendChild(node);
 
 		createApp(OverlayScore, {
 			_players      : this.players.toArray(),
@@ -213,6 +256,10 @@ export default class GameScene extends Phaser.Scene {
 		})
 		.use(vuetify)
 		.mount('.overlay-score');
+	}
+
+	removeOverlayScore() {
+		document.querySelector('.overlay-score')?.remove();
 	}
 
 	theEndOfTurnMultiplayer() {
@@ -224,6 +271,13 @@ export default class GameScene extends Phaser.Scene {
 
 		socket.emit('stop', {
 			roomName : this.room
+		});
+	}
+
+	resetPlayersRemainingBall() {
+
+		this.players.toArray().map(player => {
+			player.resetRemainingBallCount();
 		});
 	}
 

@@ -26,4 +26,8 @@ export class Player {
     isComputer() {
         return this.customData.type === COMPUTER_TYPE;
     }
+
+    resetRemainingBallCount() {
+        this.customData.remainingBallCount = BALL_COUNT_PER_PLAYER;
+    }
 }

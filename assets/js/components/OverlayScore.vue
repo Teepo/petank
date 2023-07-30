@@ -43,7 +43,7 @@ import { socket } from './../modules/ws.js';
 
 export default {
 
-    props: ['_player', '_players', '_mode', '_sceneManager'],
+    props: ['_players', '_sceneManager'],
 
     setup() {
         return { GAME_BALL_WIDTH };
@@ -54,7 +54,6 @@ export default {
         return {
             show         : true,
             players      : this.$props._players,
-            mode         : this.$props._mode,
             sceneManager : this.$props._sceneManager,
         }
     },
