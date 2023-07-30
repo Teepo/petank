@@ -6,7 +6,7 @@
     >
         <v-list>
             <h2 class="text-h4 font-weight-bold d-flex text-center justify-center mt-2 mb-8">
-                <img src="assets/img/ranking.png" class="mr-4" width="40">
+                <img :src="`assets/img/ranking.png`" class="mr-4" width="40">
                 Leaderboard
             </h2>
             <v-list-item v-for="player in this.players" :key="index">
