@@ -37,7 +37,7 @@
             </v-card>
 
             <v-dialog
-                v-if="this.isOneplayer() || (this.isMultiplayer() && player.id == this.id)"
+                v-if="this.isOneplayer() || this.isTraining() || (this.isMultiplayer() && player.id == this.id)"
                 v-model="this.shouldDisplayOverlayBalls[player.id]"
                 contained
                 class="align-center justify-center"
@@ -54,7 +54,7 @@
             </v-dialog>
         </v-container>
 
-        <v-container v-if="this.isOneplayer()">
+        <v-container v-if="this.isOneplayer() || this.isTraining()">
             <v-btn class="bg-primary mt-10" block @click="startOnePlayerMode">START</v-btn>
             <v-btn class="mt-5" block @click="back" color="grey-lighten-3">CANCEL</v-btn>
         </v-container>
@@ -70,7 +70,8 @@
 import {
     WAITING_MULTIPLAYER_MODE,
     WAITING_ONEPLAYER_MODE,
-    GAME_BALL_WIDTH
+    GAME_BALL_WIDTH,
+    WAITING_TRAINIG_MODE
 } from '../config';
 
 import { getFileNameAndExtension } from './../utils/string';
@@ -82,7 +83,7 @@ export default {
     props: ['_player', '_players', '_mode', '_sceneManager'],
 
     setup() {
-        return { GAME_BALL_WIDTH };
+        return { GAME_BALL_WIDTH, getFileNameAndExtension };
     },
 
     data() {
@@ -135,8 +136,8 @@ export default {
                 document.querySelector('.player-list').remove();
                 this.sceneManager.stop('waitingRoom');
                 this.sceneManager.start('multiPlayer', {
-                    players           : this.players,
-                    isMultiplayerMode : true
+                    players : this.players,
+                    mode    : this.mode
                 });
             });
 
@@ -183,7 +184,8 @@ export default {
 
             this.sceneManager.stop('waitingRoom');
             this.sceneManager.start('onePlayer', {
-                players : this.players
+                players : this.players,
+                mode    : this.mode
             });
 
             document.querySelector('.player-list').remove();
@@ -268,7 +270,11 @@ export default {
 
         isOneplayer() {
             return this.mode === WAITING_ONEPLAYER_MODE;
-        }
+        },
+
+        isTraining() {
+            return this.mode === WAITING_TRAINIG_MODE;
+        },
     }
 }
 </script>

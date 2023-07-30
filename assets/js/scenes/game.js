@@ -8,7 +8,10 @@ import {
 	GAME_BALL_BOUNCE,
 	GAME_BALL_FRICTION,
 	GAME_BALL_FRICTION_AIR,
-	GAME_BALL_WIDTH
+	GAME_BALL_WIDTH,
+	WAITING_MULTIPLAYER_MODE,
+	WAITING_ONEPLAYER_MODE,
+	WAITING_TRAINIG_MODE
 } from '../config';
 
 import { mergeObjectsWithPrototypes } from './../utils/object';
@@ -27,10 +30,10 @@ export default class GameScene extends Phaser.Scene {
 		super(sceneName);
     }
 
-	init({ players = [], isMultiplayerMode = false }) {
+	init({ players = [], mode = WAITING_ONEPLAYER_MODE }) {
 
-		this.players           = players;
-		this.isMultiplayerMode = isMultiplayerMode;
+		this.players = players;
+		this.mode    = mode;
 
 		this.targetingModeIsEnabled = false;
 		this.ballIsInMovement = false;
@@ -234,11 +237,14 @@ export default class GameScene extends Phaser.Scene {
 		else if (this.isMultiplayer()) {
 			scene = 'multiPlayer';
 		}
+		else if (this.isTraining()) {
+			scene = 'training';
+		}
 
 		this.scene.stop(scene);
 		this.scene.start(scene, {
-			players           : this.players,
-			isMultiplayerMode : this.isMultiplayer()
+			players : this.players,
+			mode    : this.mode
 		});
 	}
 
@@ -379,9 +385,9 @@ export default class GameScene extends Phaser.Scene {
 		this.getCamera().startFollow(this.cochonnet);
 		this.getCamera().stopFollow();
 
-		this.cochonnet.setFriction(0.005);
-		this.cochonnet.setBounce(.2);
-		this.cochonnet.setFriction(.015);
+		this.cochonnet.setFriction(GAME_BALL_FRICTION);
+		this.cochonnet.setFrictionAir(GAME_BALL_FRICTION_AIR);
+		this.cochonnet.setBounce(GAME_BALL_BOUNCE);
 		this.cochonnet.setInteractive({ draggable : true });
 
 		this.cochonnet.on('pointerdown', this.addTargeting.bind(this));
@@ -542,12 +548,17 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	getTurnCount() {
+
+		if (this.isTraining()) {
+			return this.turnCount+1;
+		}
+
 		return this.player.customData.remainingBallCount % (this.turnCount+1) + 1;
 	}
 
 	isThisMyTurn() {
 
-		if (this.isOneplayer() && this.player.isHuman()) {
+		if ((this.isOneplayer() || this.isTraining()) && this.player.isHuman()) {
 			return true;
 		}
 		else if (this.isMultiplayer() && this.player.id === this.id) {
@@ -558,10 +569,14 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	isMultiplayer() {
-		return this.isMultiplayerMode;
+		return this.mode === WAITING_MULTIPLAYER_MODE;
 	}
 
 	isOneplayer() {
-		return !this.isMultiplayerMode;
+		return this.mode === WAITING_ONEPLAYER_MODE;
+	}
+
+	isTraining() {
+		return this.mode === WAITING_TRAINIG_MODE;
 	}
 }

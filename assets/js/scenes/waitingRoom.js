@@ -6,7 +6,8 @@ import { vuetify } from '../plugins/vuetify';
 
 import {
     WAITING_MULTIPLAYER_MODE,
-    WAITING_ONEPLAYER_MODE
+    WAITING_ONEPLAYER_MODE,
+    WAITING_TRAINIG_MODE
 } from '../config';
 
 import logo from './../../img/logo.png';
@@ -44,7 +45,7 @@ export default class WaitingRoom extends Phaser.Scene {
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
         this.logo.setScale(.35);
 
-        if (this.isOneplayer()) {
+        if (this.isOneplayer() || this.isTraining()) {
 
             createApp(PlayerList, {
                 _players      : this.players,
@@ -145,5 +146,9 @@ export default class WaitingRoom extends Phaser.Scene {
 
     isOneplayer() {
         return this.mode === WAITING_ONEPLAYER_MODE;
+    }
+
+    isTraining() {
+        return this.mode === WAITING_TRAINIG_MODE;
     }
 }

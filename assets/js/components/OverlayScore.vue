@@ -36,6 +36,7 @@
 import {
     WAITING_MULTIPLAYER_MODE,
     WAITING_ONEPLAYER_MODE,
+    WAITING_TRAINIG_MODE,
     GAME_BALL_WIDTH
 } from '../config';
 
@@ -106,6 +107,10 @@ export default {
 
         isOneplayer() {
             return this.mode === WAITING_ONEPLAYER_MODE;
+        },
+
+        isTraining() {
+            return this.mode === WAITING_TRAINIG_MODE;
         },
     }
 }

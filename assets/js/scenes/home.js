@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { WAITING_ONEPLAYER_MODE } from '../config/index.js';
+import { WAITING_ONEPLAYER_MODE, WAITING_TRAINIG_MODE } from '../config/index.js';
 
 import {
     COMPUTER_TYPE,
@@ -75,7 +75,7 @@ export default class HomeScene extends Phaser.Scene {
         this.onePlayerButton.on('pointerup', () => {
             this.scene.stop('home');
             this.scene.start('waitingRoom', {
-                mode : WAITING_ONEPLAYER_MODE,
+                mode    : WAITING_ONEPLAYER_MODE,
                 players : onePlayerMap
             });
         });
@@ -124,7 +124,7 @@ export default class HomeScene extends Phaser.Scene {
         this.trainingButton.on('pointerup', () => {
             this.scene.stop('home');
             this.scene.start('waitingRoom', {
-                mode    : WAITING_ONEPLAYER_MODE,
+                mode    : WAITING_TRAINIG_MODE,
                 players : (new Map).set('Player', new Player({
                     type  : HUMAN_TYPE,
                     id    : 'Player',
