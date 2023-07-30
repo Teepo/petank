@@ -2,9 +2,10 @@
     <v-dialog
         v-model="show"
         contained
+        persistent
         class="overlay-score align-center justify-center"
     >
-        <v-list>
+        <v-list class="rounded">
             <h2 class="text-h4 font-weight-bold d-flex text-center justify-center mt-2 mb-8">
                 <img :src="`assets/img/ranking.png`" class="mr-4" width="40">
                 Leaderboard
