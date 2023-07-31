@@ -40,6 +40,11 @@ export default class WaitingRoom extends Phaser.Scene {
         this.mode    = mode;
         this.players = players;
 
+        // clean score
+        this.players.toArray().map(player => {
+            player.customData.score = 0;
+        });
+
 		this.updateBackground();
 
         this.logo = this.add.image(window.innerWidth / 2, 150, 'logo');
@@ -47,6 +52,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
         if (this.isOneplayer() || this.isTraining()) {
 
+            document.body.insertAdjacentHTML('beforeEnd', `<div class="player-list"></div>`);
             createApp(PlayerList, {
                 _players      : this.players,
                 _mode         : this.mode,
@@ -113,6 +119,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
             socket.removeAllListeners();
 
+            document.body.insertAdjacentHTML('beforeEnd', `<div class="player-list"></div>`);
             createApp(PlayerList, {
                 _player       : this.player,
                 _mode         : this.mode,

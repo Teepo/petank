@@ -34,8 +34,8 @@
             </v-list-item>
 
             <template v-if="end">
-                <v-btn class="bg-primary mt-10 d-flex w-75 mx-auto">Back to lobby</v-btn>
-                <v-btn class="mt-5 mb-5 d-flex w-75 mx-auto" color="grey-lighten-3">Back to menu</v-btn>
+                <v-btn class="bg-primary mt-10 d-flex w-75 mx-auto" @click="backToLobby">Back to lobby</v-btn>
+                <v-btn class="mt-5 mb-5 d-flex w-75 mx-auto" color="grey-lighten-3" @click="backToHome">Back to home</v-btn>
             </template>
         </v-list>
     </v-dialog>
@@ -91,16 +91,6 @@ export default {
                 roomName : this.room
             });
 
-            socket.on('start', () => {
-                socket.removeAllListeners();
-                document.querySelector('.player-list').remove();
-                this.sceneManager.stop('waitingRoom');
-                this.sceneManager.start('multiPlayer', {
-                    players           : this.players,
-                    isMultiplayerMode : true
-                });
-            });
-
             socket.on('getAllPlayersFromRoom', data => {
                 this.handleGetAllPlayersFromRoom(data);
             });
@@ -113,6 +103,36 @@ export default {
             players.map(player => {
                 this.players.set(player.id, player);
             });
+        },
+
+        back() {
+            socket.removeAllListeners();
+            document.querySelector('.overlay-score').remove();
+
+            this.sceneManager.stop();
+        },
+
+        backToLobby() {
+
+            this.back();
+
+            const playersMap = new Map;
+
+            this.players.forEach(player => {
+                playersMap.set(player.id, player);
+            });
+
+            this.sceneManager.start('waitingRoom', {
+                players : playersMap,
+                mode    : this.mode
+            });
+        },
+
+        backToHome() {
+
+            this.back();
+
+            this.sceneManager.start('home');
         },
 
         isMultiplayer() {

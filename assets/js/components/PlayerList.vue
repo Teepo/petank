@@ -198,7 +198,7 @@ export default {
             this.sceneManager.stop('waitingRoom');
             this.sceneManager.start('home');
 
-            document.querySelector('.player-list').innerHTML = '';
+            document.querySelector('.player-list').remove();
         },
 
         leaveTheRoom() {
