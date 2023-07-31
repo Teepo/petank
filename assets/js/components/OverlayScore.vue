@@ -15,7 +15,7 @@
                 <img :src="`assets/img/ranking.png`" class="mr-4" width="40">
                 Leaderboard
             </h2>
-            <v-list-item v-for="player in this.players" :key="index">
+            <v-list-item v-for="(player, index) in this.players" :key="player.id">
                 <template v-slot:prepend>
                     <img :src="`assets/img/balls/${player.customData.ball}`" class="mr-4" :width="GAME_BALL_WIDTH">
                     <v-list-item-title class="font-weight-bold">
@@ -24,7 +24,10 @@
                 </template>
 
                 <template v-slot:append>
-                    <v-list-item-title class="font-weight-bold">
+                    <v-list-item-title class="font-weight-bold overlay-score-points">
+                        <img :src="`assets/img/gold-medal.svg`"   class="mr-1" v-if="end && index === 0" width="32">
+                        <img :src="`assets/img/silver-medal.svg`" class="mr-1" v-if="end && index === 1" width="32">
+                        <img :src="`assets/img/bronze-medal.svg`" class="mr-1" v-if="end && index === 2" width="32">
                         {{ player.customData.score }} Pts
                     </v-list-item-title>
                 </template>
@@ -51,7 +54,7 @@ import { socket } from './../modules/ws.js';
 
 export default {
 
-    props: ['_players', '_sceneManager'],
+    props: ['_players', '_sceneManager', '_end'],
 
     setup() {
         return { GAME_BALL_WIDTH };
@@ -61,13 +64,16 @@ export default {
 
         return {
             show         : true,
-            end          : false,
+            end          : this.$props._end ?? false,
             players      : this.$props._players,
             sceneManager : this.$props._sceneManager,
         }
     },
 
     async mounted() {
+
+        // sort players by score
+        this.players = this.players.slice().sort((oldPlayer, newPlayer) => newPlayer.customData.score - oldPlayer.customData.score);
 
         if (this.isMultiplayer()) {
             this.initMultiplayerMode();
@@ -131,6 +137,11 @@ export default {
         position: absolute;
         top: -20px;
         right: -20px;
+    }
+
+    &-points {
+        display: flex;
+        align-items: center;
     }
 
     .v-list {
