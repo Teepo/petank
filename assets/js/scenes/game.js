@@ -10,6 +10,7 @@ import {
 	GAME_BALL_FRICTION,
 	GAME_BALL_FRICTION_AIR,
 	GAME_BALL_WIDTH,
+	POINTS_TO_WIN,
 	WAITING_MULTIPLAYER_MODE,
 	WAITING_ONEPLAYER_MODE,
 	WAITING_TRAINIG_MODE
@@ -51,6 +52,11 @@ export default class GameScene extends Phaser.Scene {
 
 		if (this.isMultiplayer()) {
 			this.initMultiplayerMode();
+		}
+
+		if (this.checkIfPlayWinTheGame()) {
+			this.scene.pause();
+			this.showOverlayScore(true);
 		}
 	}
 
@@ -118,10 +124,14 @@ export default class GameScene extends Phaser.Scene {
 
 	drawButtonCenterCameraToCurrentBall() {
 
+		if (document.querySelector('.button-center-camera-to-current-ball')) {
+			return;
+		}
+
 		document.body.insertAdjacentHTML('beforeEnd', `
 			<button class="button button-center-camera-to-current-ball">
 				<img src="./assets/img/center.png" class="u-icon">
-			</button>`)
+			</button>`);
 
 		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
 			this.resetCameraToCurrentBall();
@@ -131,6 +141,10 @@ export default class GameScene extends Phaser.Scene {
 	drawButtonShowOverlayScore() {
 
 		if (this.isTraining()) {
+			return;
+		}
+
+		if (document.querySelector('.button-show-overlay-score')) {
 			return;
 		}
 
@@ -165,6 +179,12 @@ export default class GameScene extends Phaser.Scene {
 		}).length === this.players.size;
 	}
 
+	checkIfPlayWinTheGame() {
+		return !!this.players.toArray().find(player => {
+			return player.customData.score >= POINTS_TO_WIN;
+		})
+	}
+
 	theEndOfBallShoot() {
 
 		if (this.isCochonetMode) {
@@ -185,7 +205,7 @@ export default class GameScene extends Phaser.Scene {
 
 		const distance = this.getDistanceBetweenBallAndCochonnet(this.currentBall);
 
-		Alert.add({ str : `${this.player.login} => ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
+		Alert.add({ str : `${this.player.login} - ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
 
 		this.player = this.getPlayerForThisTurn();
 
@@ -225,6 +245,8 @@ export default class GameScene extends Phaser.Scene {
 
 		player.customData.score += score;
 
+		Alert.add({ str : `${this.player.login} win round, got ${score} pts`, player : this.player })
+
 		this.resetPlayersRemainingBall();
 
 		if (this.isMultiplayer()) {
@@ -238,8 +260,6 @@ export default class GameScene extends Phaser.Scene {
 				roomName : this.room
 			});
 		}
-
-		this.showOverlayScore();
 
 		this.nextRound();
 	}
@@ -275,7 +295,7 @@ export default class GameScene extends Phaser.Scene {
 		});
 	}
 
-	showOverlayScore() {
+	showOverlayScore(end = false) {
 
 		this.removeOverlayScore();
 
@@ -285,7 +305,8 @@ export default class GameScene extends Phaser.Scene {
 
 		createApp(OverlayScore, {
 			_players      : this.players.toArray(),
-			_sceneManager : this.scene
+			_sceneManager : this.scene,
+			_end          : end
 		})
 		.use(vuetify)
 		.mount('.overlay-score');
@@ -392,7 +413,7 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
 		setTimeout(() => {
-			Alert.add({ str : `${this.player.login} - Ball ${this.getBallCounterInRound()}`, player : this.player })
+			Alert.add({ str : `${this.player.login} - Ball ${this.getBallCounterInRound()}`, player : this.player });
 		}, 2000);
 
 		if (this.player.isHuman()) {

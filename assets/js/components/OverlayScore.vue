@@ -30,10 +30,10 @@
                 </template>
             </v-list-item>
 
-            <!--
-            <v-btn class="bg-primary mt-10 d-flex w-75 mx-auto">Back to lobby</v-btn>
-            <v-btn class="mt-5 mb-5 d-flex w-75 mx-auto" color="grey-lighten-3">Back to menu</v-btn>
-            -->
+            <template v-if="end">
+                <v-btn class="bg-primary mt-10 d-flex w-75 mx-auto">Back to lobby</v-btn>
+                <v-btn class="mt-5 mb-5 d-flex w-75 mx-auto" color="grey-lighten-3">Back to menu</v-btn>
+            </template>
         </v-list>
     </v-dialog>
 </template>
@@ -61,6 +61,7 @@ export default {
 
         return {
             show         : true,
+            end          : false,
             players      : this.$props._players,
             sceneManager : this.$props._sceneManager,
         }
