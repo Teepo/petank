@@ -227,7 +227,7 @@ export default class GameScene extends Phaser.Scene {
 
 			socket.emit('updatePlayer', {
 				roomName : this.room,
-				player   : playerWinner
+				player   : player
 			});
 
 			socket.emit('stop', {
@@ -554,7 +554,7 @@ export default class GameScene extends Phaser.Scene {
 		// Draw velocity indicator
 		this.drawVelocityIndicator(this.currentBall.y);
 
-		if (this.isMultiplayer()) {
+		if (this.isMultiplayer() && this.isThisMyTurn()) {
 			socket.emit('data', {
 				eventType : 'pointerdown',
 				id        : this.id,
@@ -569,7 +569,7 @@ export default class GameScene extends Phaser.Scene {
 		this.cochonnet.setVelocity(0);
 		this.drawVelocityIndicator(x, y);
 
-		if (this.isMultiplayer()) {
+		if (this.isMultiplayer() && this.isThisMyTurn()) {
 			socket.emit('data', {
 				eventType : 'drag',
 				id        : this.id,
@@ -589,7 +589,7 @@ export default class GameScene extends Phaser.Scene {
 		this.shootBall(upX, upY);
 		this.destroyVelocityIndicator();
 
-		if (this.isMultiplayer()) {
+		if (this.isMultiplayer() && this.isThisMyTurn()) {
 			socket.emit('data', {
 				eventType : 'dragend',
 				id        : this.id,
