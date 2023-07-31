@@ -71,6 +71,7 @@ export default class GameScene extends Phaser.Scene {
 
 		this.updateBackground();
 		this.drawButtonCenterCameraToCurrentBall();
+		this.drawButtonShowOverlayScore();
 		this.addCochonnet();
 		this.initPinchZoom();
 		this.resetCameraToCurrentBall();
@@ -97,7 +98,7 @@ export default class GameScene extends Phaser.Scene {
 	update() {
 
 		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
-			this.theEndOfTurn();
+			this.theEndOfRound();
 			return;
 		}
 
@@ -129,6 +130,18 @@ export default class GameScene extends Phaser.Scene {
 
 		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
 			this.resetCameraToCurrentBall();
+		});
+	}
+
+	drawButtonShowOverlayScore() {
+
+		document.body.insertAdjacentHTML('beforeEnd', `
+			<button class="button button-show-overlay-score">
+				<img src="./assets/img/trophy.png" class="u-icon">
+			</button>`)
+
+		document.querySelector('.button-show-overlay-score').addEventListener('click', () => {
+			this.showOverlayScore();
 		});
 	}
 
@@ -198,13 +211,15 @@ export default class GameScene extends Phaser.Scene {
 		}
 	}
 
-	theEndOfTurn() {
+	theEndOfRound() {
 
 		this.scene.pause();
 
 		const playerWinner = this.getWinnerPlayerOfTurn();
 
 		playerWinner.customData.score++;
+
+		console.log(playerWinner)
 
 		this.resetPlayersRemainingBall();
 

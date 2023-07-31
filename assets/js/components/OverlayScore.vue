@@ -6,7 +6,12 @@
         class="overlay-score align-center justify-center"
     >
         <v-list class="rounded">
-            <h2 class="text-h4 font-weight-bold d-flex text-center justify-center mt-2 mb-8">
+
+            <v-btn icon @click="show = false" class="overlay-score-close">
+                <v-icon>mdi-close</v-icon>
+            </v-btn>
+
+            <h2 class="text-h5 font-weight-bold d-flex text-center justify-center align-center mt-2 mb-5">
                 <img :src="`assets/img/ranking.png`" class="mr-4" width="40">
                 Leaderboard
             </h2>
@@ -25,8 +30,10 @@
                 </template>
             </v-list-item>
 
+            <!--
             <v-btn class="bg-primary mt-10 d-flex w-75 mx-auto">Back to lobby</v-btn>
             <v-btn class="mt-5 mb-5 d-flex w-75 mx-auto" color="grey-lighten-3">Back to menu</v-btn>
+            -->
         </v-list>
     </v-dialog>
 </template>
@@ -118,10 +125,25 @@ export default {
 
 <style lang="scss">
 .overlay-score {
-    
-    .v-list-item {
-        padding: 15px 20px;
-        border-bottom: 1px solid #eee;
+
+    &-close {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+    }
+
+    .v-list {
+
+        overflow: initial;
+
+        &-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
     }
 }
 </style>
