@@ -388,7 +388,7 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
 		setTimeout(() => {
-			Alert.add({ str : `${this.player.login} - Ball ${(BALL_COUNT_PER_PLAYER - this.player.customData.remainingBallCount)+1}`, player : this.player })
+			Alert.add({ str : `${this.player.login} - Ball ${this.getBallCounterInRound()}`, player : this.player })
 		}, 2000);
 
 		if (this.player.isHuman()) {
@@ -412,6 +412,15 @@ export default class GameScene extends Phaser.Scene {
 			player : this.player,
 			ball   : this.currentBall
 		});
+	}
+
+	getBallCounterInRound() {
+
+		if (this.isTraining()) {
+			return this.turnCount + 1;
+		}
+
+		return (BALL_COUNT_PER_PLAYER - this.player.customData.remainingBallCount) + 1;
 	}
 
 	addCochonnet() {
