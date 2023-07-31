@@ -11,6 +11,6 @@ export const GAME_BALL_FRICTION = .01;
 export const GAME_BALL_FRICTION_AIR = .015;
 export const GAME_BALL_BOUNCE = .5;
 
-export const BALL_COUNT_PER_PLAYER = 1;
+export const BALL_COUNT_PER_PLAYER = 2;
 
 export const POINTS_TO_WIN = 13;

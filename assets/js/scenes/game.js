@@ -5,6 +5,7 @@ import { createApp } from 'vue';
 import { vuetify } from '../plugins/vuetify';
 
 import {
+	BALL_COUNT_PER_PLAYER,
 	GAME_BALL_BOUNCE,
 	GAME_BALL_FRICTION,
 	GAME_BALL_FRICTION_AIR,
@@ -96,12 +97,6 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	update() {
-
-		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
-			this.theEndOfRound();
-			return;
-		}
-
 		this.checkIfAddAnotherBallIsNeeded();
 	}
 
@@ -161,7 +156,9 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	checkIfAllPlayersHaveShootedTheirBalls() {
-		return this.players.toArray().filter(player => player.customData.remainingBallCount <= 0).length === this.players.size;
+		return this.players.toArray().filter(player => {
+			return player.customData.remainingBallCount <= 0;
+		}).length === this.players.size;
 	}
 
 	theEndOfBallShoot() {
@@ -186,11 +183,14 @@ export default class GameScene extends Phaser.Scene {
 
 		Alert.add({ str : `${this.player.login} => ${this.getPixelDistanceToHumanDistance(distance)}`, player : this.player });
 
-		this.nextTurn();
-
 		this.player = this.getPlayerForThisTurn();
 
 		this.player.customData.remainingBallCount--;
+
+		if (this.checkIfAllPlayersHaveShootedTheirBalls()) {
+			this.theEndOfRound();
+			return;
+		}
 
 		this.currentBall.disableInteractive();
 		this.ballIsInMovement = false;
@@ -198,6 +198,8 @@ export default class GameScene extends Phaser.Scene {
 		this.playersBalls.map(({ ball }) => {
 			ball.setVelocity(0);
 		});
+
+		this.nextTurn();
 
 		this.addBall();
 
@@ -215,9 +217,9 @@ export default class GameScene extends Phaser.Scene {
 
 		this.scene.pause();
 
-		const playerWinner = this.getWinnerPlayerOfTurn();
+		const { player, score } = this.getWinnerPlayerOfTurn();
 
-		playerWinner.customData.score++;
+		player.customData.score += score;
 
 		this.resetPlayersRemainingBall();
 
@@ -303,10 +305,38 @@ export default class GameScene extends Phaser.Scene {
 
 	getWinnerPlayerOfTurn() {
 
-		return this.playersBalls.map( ({ player, ball }) => {
+		const players = this.playersBalls.map( ({ player, ball }) => {
 			return { player : player, distance : this.getDistanceBetweenBallAndCochonnet(ball) };
-		})
-		.reduce((acc, player) => player.distance < acc.distance ? player : acc).player;
+		});
+
+		const winner = players.reduce((acc, player) => player.distance < acc.distance ? player : acc);
+
+		const score = this.getScoreForWinnerPlayer(players);
+
+		return {
+			player : winner.player,
+			score  : score
+		};
+	}
+
+	getScoreForWinnerPlayer(players) {
+
+		const sortedPlayers = players.slice().sort((oldPlayer, newPlayer) => oldPlayer.distance - newPlayer.distance);
+
+		const firstPlayer = sortedPlayers[0].player;
+
+		let score = 0;
+
+		for (let { player } of sortedPlayers) {
+
+			if (player.id !== firstPlayer.id) {
+				break;
+			}
+
+			score++;
+		}
+
+		return score;
 	}
 
 	resetCameraToCurrentBall() {
@@ -358,7 +388,7 @@ export default class GameScene extends Phaser.Scene {
 		this.currentBall.y = this.game.config.height * 2 - 300;
 
 		setTimeout(() => {
-			Alert.add({ str : `${this.player.login} turn ${this.getTurnCount()}`, player : this.player })
+			Alert.add({ str : `${this.player.login} - Ball ${(BALL_COUNT_PER_PLAYER - this.player.customData.remainingBallCount)+1}`, player : this.player })
 		}, 2000);
 
 		if (this.player.isHuman()) {
@@ -570,15 +600,6 @@ export default class GameScene extends Phaser.Scene {
 				}
 			});
 		}
-	}
-
-	getTurnCount() {
-
-		if (this.isTraining()) {
-			return this.turnCount+1;
-		}
-
-		return this.player.customData.remainingBallCount % (this.turnCount+1) + 1;
 	}
 
 	isThisMyTurn() {
