@@ -130,6 +130,10 @@ export default class GameScene extends Phaser.Scene {
 
 	drawButtonShowOverlayScore() {
 
+		if (this.isTraining()) {
+			return;
+		}
+
 		document.body.insertAdjacentHTML('beforeEnd', `
 			<button class="button button-show-overlay-score">
 				<img src="./assets/img/trophy.png" class="u-icon">
