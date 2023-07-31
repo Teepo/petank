@@ -219,8 +219,6 @@ export default class GameScene extends Phaser.Scene {
 
 		playerWinner.customData.score++;
 
-		console.log(playerWinner)
-
 		this.resetPlayersRemainingBall();
 
 		if (this.isMultiplayer()) {
@@ -365,19 +363,19 @@ export default class GameScene extends Phaser.Scene {
 
 		if (this.player.isHuman()) {
 
-			if (!this.isThisMyTurn()) {
+			if (this.isThisMyTurn()) {
 
+				this.currentBall.setInteractive({ draggable : true })
+
+				this.currentBall.on('pointerdown', this.addTargeting.bind(this));
+				this.currentBall.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
+				this.currentBall.on('dragend', (event) => { this.onDragEndBall(event); });
+			}
+			else {
 				socket.on('pointerdown', this.addTargeting.bind(this));
 				socket.on('drag', data => { this.onDragBall(data); });
 				socket.on('dragend', data => { this.onDragEndBall(data); });
-				return;
 			}
-
-			this.currentBall.setInteractive({ draggable : true })
-
-			this.currentBall.on('pointerdown', this.addTargeting.bind(this));
-			this.currentBall.on('drag', (event, x, y) => { this.onDragBall({x, y}); });
-			this.currentBall.on('dragend', (event) => { this.onDragEndBall(event); });
 		}
 
 		this.playersBalls.push({
