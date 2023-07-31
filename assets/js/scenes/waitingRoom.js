@@ -41,7 +41,7 @@ export default class WaitingRoom extends Phaser.Scene {
         this.players = players;
 
         // clean score
-        this.players.toArray().map(player => {
+        this.players instanceof Map && this.players.toArray().map(player => {
             player.customData.score = 0;
         });
 
