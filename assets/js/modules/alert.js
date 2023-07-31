@@ -15,7 +15,7 @@ class AlertManager {
             text      : str,
             layout    : 'topLeft',
             closeWith : ['click', 'button'],
-            timeout   : 5000
+            timeout   : 3000
         })).show();
     }
 }

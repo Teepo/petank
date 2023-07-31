@@ -245,7 +245,7 @@ export default class GameScene extends Phaser.Scene {
 
 		player.customData.score += score;
 
-		Alert.add({ str : `${this.player.login} win round, got ${score} pts`, player : this.player })
+		Alert.add({ str : `${player.login} win round, got ${score}pts`, player : player })
 
 		this.resetPlayersRemainingBall();
 
@@ -414,7 +414,7 @@ export default class GameScene extends Phaser.Scene {
 
 		setTimeout(() => {
 			Alert.add({ str : `${this.player.login} - Ball ${this.getBallCounterInRound()}`, player : this.player });
-		}, 2000);
+		}, 1000);
 
 		if (this.player.isHuman()) {
 
