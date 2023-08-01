@@ -1,5 +1,5 @@
-import { WS_HOST, WS_PORT } from './../config/index.js';
+import { WS_PROTOCOL, WS_HOST, WS_PORT } from './../config/index.js';
 
 import { io } from 'socket.io-client';
 
-export const socket = new io(`wss://${WS_HOST}:${WS_PORT}`);
+export const socket = new io(`${WS_PROTOCOL}://${WS_HOST}:${WS_PORT}`);

@@ -30,6 +30,7 @@
     "socket.io-client": "^4.7.1",
     "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.3.4",
-    "vuetify": "^3.3.10"
+    "vuetify": "^3.3.10",
+    "yargs": "^17.7.2"
   }
 }
