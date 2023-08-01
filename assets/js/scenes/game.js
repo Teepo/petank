@@ -32,7 +32,12 @@ export default class GameScene extends Phaser.Scene {
 		super(sceneName);
     }
 
-	init({ players = [], mode = WAITING_ONEPLAYER_MODE }) {
+	/**
+     * @param {String} mode
+     * @param {Map<Player>} players
+     *
+     */
+	init({ mode = WAITING_ONEPLAYER_MODE, players = new Map }) {
 
 		this.players = players;
 		this.mode    = mode;
@@ -128,12 +133,12 @@ export default class GameScene extends Phaser.Scene {
 			return;
 		}
 
-		document.body.insertAdjacentHTML('beforeEnd', `
+		document.body?.insertAdjacentHTML('beforeend', `
 			<button class="button button-center-camera-to-current-ball">
 				<img src="./assets/img/center.png" class="u-icon">
 			</button>`);
 
-		document.querySelector('.button-center-camera-to-current-ball').addEventListener('click', () => {
+		document.querySelector('.button-center-camera-to-current-ball')?.addEventListener('click', () => {
 			this.resetCameraToCurrentBall();
 		});
 	}
@@ -148,12 +153,12 @@ export default class GameScene extends Phaser.Scene {
 			return;
 		}
 
-		document.body.insertAdjacentHTML('beforeEnd', `
+		document.body?.insertAdjacentHTML('beforeend', `
 			<button class="button button-show-overlay-score">
 				<img src="./assets/img/trophy.png" class="u-icon">
 			</button>`)
 
-		document.querySelector('.button-show-overlay-score').addEventListener('click', () => {
+		document.querySelector('.button-show-overlay-score')?.addEventListener('click', () => {
 			this.showOverlayScore();
 		});
 	}
@@ -173,12 +178,20 @@ export default class GameScene extends Phaser.Scene {
 		}
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	checkIfAllPlayersHaveShootedTheirBalls() {
 		return this.players.toArray().filter(player => {
 			return player.customData.remainingBallCount <= 0;
 		}).length === this.players.size;
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	checkIfPlayWinTheGame() {
 		return !!this.players.toArray().find(player => {
 			return player.customData.score >= POINTS_TO_WIN;
@@ -301,7 +314,7 @@ export default class GameScene extends Phaser.Scene {
 
 		const node = document.createElement('div');
 		node.classList.add('overlay-score');
-		document.body.appendChild(node);
+		document.body?.appendChild(node);
 
 		createApp(OverlayScore, {
 			_players      : this.players.toArray(),
@@ -323,11 +336,19 @@ export default class GameScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+     *
+     * @return {Player}
+     */
 	getPlayerForThisTurn() {
 		const index = this.turnCount % this.players.size;
 		return this.players.toArray()[index];
 	}
 
+	/**
+     *
+     * @return {Object{Player, Number}}
+     */
 	getWinnerPlayerOfTurn() {
 
 		const players = this.playersBalls.map( ({ player, ball }) => {
@@ -344,6 +365,10 @@ export default class GameScene extends Phaser.Scene {
 		};
 	}
 
+	/**
+     *
+     * @return {Number}
+     */
 	getScoreForWinnerPlayer(players) {
 
 		const sortedPlayers = players.slice().sort((oldPlayer, newPlayer) => oldPlayer.distance - newPlayer.distance);
@@ -369,10 +394,18 @@ export default class GameScene extends Phaser.Scene {
 		this.getCamera().stopFollow();
 	}
 
+	/**
+     *
+     * @return {Number}
+     */
 	getDistanceBetweenBallAndCochonnet(ball) {
 		return Phaser.Math.Distance.Between(ball.x, ball.y, this.cochonnet.x, this.cochonnet.y) - (GAME_BALL_WIDTH / 2);
 	}
 
+	/**
+     *
+     * @return {Number}
+     */
 	getPixelDistanceToHumanDistance(px) {
 
 		const pxByMeter = 250;
@@ -439,6 +472,10 @@ export default class GameScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+     *
+     * @return {Number}
+     */
 	getBallCounterInRound() {
 
 		if (this.isTraining()) {
@@ -515,6 +552,10 @@ export default class GameScene extends Phaser.Scene {
 		this.currentLineTarget.destroy();
 	}
 
+	/**
+     *
+     * @return {Number}
+     */
 	scaleValue(x, xMin, xMax, nMin, nMax) {
 		const scaledValue = (x - xMin) / (xMax - xMin);
 		const convertedValue = scaledValue * (nMax - nMin) + nMin;
@@ -566,6 +607,10 @@ export default class GameScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+     *
+     * @return {Phaser<Camera>}
+     */
 	getCamera() {
 		return this.cameras.main;
 	}
@@ -636,6 +681,10 @@ export default class GameScene extends Phaser.Scene {
 		}
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	isThisMyTurn() {
 
 		if ((this.isOneplayer() || this.isTraining()) && this.player.isHuman()) {
@@ -648,14 +697,26 @@ export default class GameScene extends Phaser.Scene {
 		return false;
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	isMultiplayer() {
 		return this.mode === WAITING_MULTIPLAYER_MODE;
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	isOneplayer() {
 		return this.mode === WAITING_ONEPLAYER_MODE;
 	}
 
+	/**
+     *
+     * @return {Boolean}
+     */
 	isTraining() {
 		return this.mode === WAITING_TRAINIG_MODE;
 	}

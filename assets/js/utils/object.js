@@ -1,3 +1,9 @@
+/**
+ * @param {Object} obj1
+ * @param {Object} obj2
+ *
+ * @return {Object}
+ */
 export function mergeObjectsWithPrototypes(obj1, obj2) {
     
     const mergedObj = Object.create(Object.getPrototypeOf(obj1));

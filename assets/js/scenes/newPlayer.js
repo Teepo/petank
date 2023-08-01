@@ -68,8 +68,8 @@ export default class NewPlayer extends Phaser.Scene {
 
     createForm() {
 
-        const form = document.querySelector('#template-form-new-player').content.cloneNode(true);
-        document.body.appendChild(form);
+        const form = document.querySelector('#template-form-new-player')?.content?.cloneNode(true);
+        document.body?.appendChild(form);
 
         const { width, height } = this.scale;
 
@@ -118,7 +118,7 @@ export default class NewPlayer extends Phaser.Scene {
                 return;
             }
 
-            document.querySelector('.form-new-player').remove();
+            document.querySelector('.form-new-player')?.remove();
             socket.removeAllListeners();
             this.scene.stop('home');
             this.scene.start('waitingRoom', {
@@ -131,7 +131,7 @@ export default class NewPlayer extends Phaser.Scene {
 
         const form = document.querySelector('.form-new-player');
 
-        const login = form.querySelector('input').value;
+        const login = form?.querySelector('input')?.value;
 
         socket.emit('joinRoom', {
             roomName : 'petank',

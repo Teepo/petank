@@ -1,3 +1,8 @@
+/**
+ * @param {String} path
+ *
+ * @return {String}
+ */
 export function getFileNameAndExtension(path) {
 
     const segments = path.split('/');

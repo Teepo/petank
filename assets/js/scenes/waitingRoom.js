@@ -35,13 +35,18 @@ export default class WaitingRoom extends Phaser.Scene {
         this.load.image('logo', logo);
 	}
 
-	init({ mode = WAITING_ONEPLAYER_MODE, players = [] }) {
+    /**
+     * @param {String} mode
+     * @param {Map<Player>} players
+     *
+     */
+	init({ mode = WAITING_ONEPLAYER_MODE, players = new Map }) {
 
         this.mode    = mode;
         this.players = players;
 
         // clean score
-        this.players instanceof Map && this.players.toArray().map(player => {
+        this.players.toArray().map(player => {
             player.customData.score = 0;
         });
 
@@ -52,7 +57,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
         if (this.isOneplayer() || this.isTraining()) {
 
-            document.body.insertAdjacentHTML('beforeEnd', `<div class="player-list"></div>`);
+            document.body?.insertAdjacentHTML('beforeend', `<div class="player-list"></div>`);
             createApp(PlayerList, {
                 _players      : this.players,
                 _mode         : this.mode,
@@ -119,7 +124,7 @@ export default class WaitingRoom extends Phaser.Scene {
 
             socket.removeAllListeners();
 
-            document.body.insertAdjacentHTML('beforeEnd', `<div class="player-list"></div>`);
+            document.body?.insertAdjacentHTML('beforeend', `<div class="player-list"></div>`);
             createApp(PlayerList, {
                 _player       : this.player,
                 _mode         : this.mode,
@@ -129,7 +134,7 @@ export default class WaitingRoom extends Phaser.Scene {
             .mount('.player-list');
         });
 
-        window.addEventListener("beforeunload", () => {
+        window.addEventListener('beforeunload', () => {
             socket.emit('setPlayerIsReady', {
                 player   : this.player,
                 roomName : this.room,
@@ -147,14 +152,26 @@ export default class WaitingRoom extends Phaser.Scene {
 		this.backgroundSand = this.add.tileSprite(window.innerWidth / 2, window.innerHeight / 2, window.innerWidth, window.innerHeight, 'background-sand');
 	}
 
+    /**
+     *
+     * @return {Boolean}
+     */
     isMultiplayer() {
         return this.mode === WAITING_MULTIPLAYER_MODE;
     }
 
+    /**
+     *
+     * @return {Boolean}
+     */
     isOneplayer() {
         return this.mode === WAITING_ONEPLAYER_MODE;
     }
 
+    /**
+     *
+     * @return {Boolean}
+     */
     isTraining() {
         return this.mode === WAITING_TRAINIG_MODE;
     }

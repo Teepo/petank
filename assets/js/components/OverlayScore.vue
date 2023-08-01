@@ -135,14 +135,26 @@ export default {
             this.sceneManager.start('home');
         },
 
+        /**
+         *
+         * @return {Boolean}
+         */
         isMultiplayer() {
             return this.mode === WAITING_MULTIPLAYER_MODE;
         },
 
+        /**
+         *
+         * @return {Boolean}
+         */
         isOneplayer() {
             return this.mode === WAITING_ONEPLAYER_MODE;
         },
 
+        /**
+         *
+         * @return {Boolean}
+         */
         isTraining() {
             return this.mode === WAITING_TRAINIG_MODE;
         },

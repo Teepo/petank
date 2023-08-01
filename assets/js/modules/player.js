@@ -5,6 +5,14 @@ export const COMPUTER_TYPE = 'computer';
 
 export class Player {
 
+    /**
+     * @param {String} id
+     * @param {String} login
+     * @param {String} type
+     * @param {String} ball
+     * @param {Number} remainingBallCount
+     *
+     */
     constructor({ id, login, type, ball, remainingBallCount = BALL_COUNT_PER_PLAYER }) {
 
         this.id      = id;
@@ -19,10 +27,18 @@ export class Player {
         };
     }
 
+    /**
+     *
+     * @return {Boolean}
+     */
     isHuman() {
         return this.customData.type === HUMAN_TYPE;
     }
 
+    /**
+     *
+     * @return {Boolean}
+     */
     isComputer() {
         return this.customData.type === COMPUTER_TYPE;
     }

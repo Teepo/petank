@@ -3,6 +3,12 @@ import { GAME_BALL_WIDTH } from '../config';
 
 class AlertManager {
 
+    /**
+     * @param {String} str
+     * @param {String} type
+     * @param {Player} player
+     *
+     */
     add({ str, type = 'info', player }) {
 
         if (player) {
