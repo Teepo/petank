@@ -108,6 +108,7 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	update() {
+		console.log(this.game.loop.actualFps)
 		this.checkIfAddAnotherBallIsNeeded();
 	}
 
