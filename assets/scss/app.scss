@@ -1,15 +1,6 @@
-@import './reset.scss';
-
-@import "~noty/src/noty.scss";
-@import "~noty/src/themes/metroui.scss";
+@use "index" as *;
 
 $primary-color: #1da1f2;
-
-@import './mixins.scss';
-
-@import './modules/alert.scss';
-@import './modules/button.scss';
-@import './modules/icon.scss';
 
 body {
     font-family: Arial;
